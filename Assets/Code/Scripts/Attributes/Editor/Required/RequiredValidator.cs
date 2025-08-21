@@ -49,7 +49,7 @@ namespace Code.Scripts.Attributes.Editor.Required
                     var fieldValue = fieldInfo.GetValue(monoBehaviour);
                     if (fieldValue != null) continue;
                     
-                    Debug.LogError($"<b>{fieldInfo.Name}</b> on <b>{monoBehaviour.name}</b> is not assigned.", monoBehaviour);
+                    Debug.LogError($"[{monoBehaviour.GetType().Name}] <b>{fieldInfo.Name}</b> on <b>{monoBehaviour.name}</b> is not assigned.", monoBehaviour);
                     hasErrors = true;
                 }
             }
