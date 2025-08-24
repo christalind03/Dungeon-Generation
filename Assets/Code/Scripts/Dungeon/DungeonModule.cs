@@ -6,6 +6,9 @@ using UnityEngine;
 
 namespace Code.Scripts.Dungeon
 {
+    /// <summary>
+    /// Represents a modular section of a dungeon.
+    /// </summary>
     public class DungeonModule : MonoBehaviour
     {
         [Required, SerializeField] private Collider[] moduleBounds;
@@ -13,11 +16,18 @@ namespace Code.Scripts.Dungeon
         
         private List<DungeonModuleEntrance> availableEntrances;
 
+        /// <summary>
+        /// Initializes the currently available (unused) entrances at runtime and is updated as entrances are connected to other modules' entrances.
+        /// </summary>
         private void Awake()
         {
             availableEntrances = moduleEntrances.ToList();
         }
         
+        /// <summary>
+        /// Calculates the total bounding volume of the module by combining all the bounds of all <see cref="moduleBounds"/>.
+        /// </summary>
+        /// <returns>A <see cref="Bounds"/> that fully contains the module.</returns>
         public Bounds CalculateBounds()
         {
             var allBounds = moduleBounds.Select(moduleBound => moduleBound.bounds).ToArray();
@@ -37,11 +47,22 @@ namespace Code.Scripts.Dungeon
             return objectBounds;
         }
         
+        /// <summary>
+        /// Removes an entrance from the list of available entrances.
+        /// This should be called once an entrance has successfully been connected with another module's entrance.
+        /// </summary>
+        /// <param name="entrancePoint"></param>
         public void RemoveAvailableEntrance(Transform entrancePoint)
         {
             availableEntrances.RemoveAll(availableEntrance => availableEntrance.EntrancePoint == entrancePoint);
         }
         
+        /// <summary>
+        /// Selects an unused entrance at random from the module.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="Transform"/> of the selected entrance or <c>null</c> if no entrances are available.
+        /// </returns>
         public Transform SelectAvailableEntrance()
         {
             if (availableEntrances.Count <= 0) return null;
@@ -52,6 +73,10 @@ namespace Code.Scripts.Dungeon
         
         #if UNITY_EDITOR
 
+        /// <summary>
+        /// Ensures <see cref="moduleBounds"/> and <see cref="moduleEntrances"/> are not empty and logs errors if requirements are not met.
+        /// If validation fails while in Play mode, the editor will immediately exit Play mode to prevent further issues regarding dungeon generation.
+        /// </summary>
         private void OnValidate()
         {
             var scriptName = GetType().Name;
