@@ -1,0 +1,16 @@
+{
+    "name": "Code.Scripts.Dungeon",
+    "rootNamespace": "",
+    "references": [
+        "GUID:ba70ffd21697c7f41b1c018ad1ca4e08"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
