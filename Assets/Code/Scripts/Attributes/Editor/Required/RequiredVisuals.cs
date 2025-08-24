@@ -10,7 +10,7 @@ namespace Code.Scripts.Attributes.Editor.Required
     /// </summary>
     public static class RequiredVisuals
     {
-        public static readonly float IconSize = EditorGUIUtility.singleLineHeight;
+        public static readonly float IconSize = 15;
         public static readonly Texture RequiredIcon = EditorGUIUtility.FindTexture("console.erroricon");
     }
 }

@@ -1,7 +1,8 @@
 #if UNITY_EDITOR
 
 using UnityEditor;
-using UnityEngine;
+using UnityEditor.UIElements;
+using UnityEngine.UIElements;
 
 namespace Code.Scripts.Attributes.Editor.Required
 {
@@ -17,36 +18,54 @@ namespace Code.Scripts.Attributes.Editor.Required
         /// <summary>
         /// Renders the property field with additional validation visuals if unassigned.
         /// </summary>
-        /// <param name="guiPosition">The rectangle area allocated for the property.</param>
         /// <param name="serializedProperty">The property being drawn.</param>
-        /// <param name="guiContent">The label content for the property.</param>
-        public override void OnGUI(Rect guiPosition, SerializedProperty serializedProperty, GUIContent guiContent)
+        public override VisualElement CreatePropertyGUI(SerializedProperty serializedProperty)
         {
-            EditorGUI.BeginProperty(guiPosition, guiContent, serializedProperty);
-            EditorGUI.BeginChangeCheck();
-
-            Rect fieldRect = new(guiPosition.x, guiPosition.y, guiPosition.width - RequiredVisuals.IconSize, guiPosition.height);
-            
-            EditorGUI.PropertyField(fieldRect, serializedProperty, guiContent);
-            
-            // If the field is required but unassigned, display an error icon 
-            if (IsUnassigned(serializedProperty))
+            var propertyContainer = new VisualElement
             {
-                Rect iconRect = new(guiPosition.xMax - RequiredVisuals.IconSize * 0.85f, guiPosition.y, RequiredVisuals.IconSize, RequiredVisuals.IconSize);
-                
-                GUI.Label(iconRect, new GUIContent(RequiredVisuals.RequiredIcon, "This field is required."));
-            }
+                style =
+                {
+                    alignItems = Align.Center,
+                    flexDirection = FlexDirection.Row
+                }
+            };
 
-            if (EditorGUI.EndChangeCheck())
+            var propertyElement = new PropertyField(serializedProperty, serializedProperty.displayName)
+            {
+                style =
+                {
+                    flexGrow = 1
+                }
+            };
+            
+            var propertyIcon = new Image
+            {
+                image = RequiredVisuals.RequiredIcon,
+                style =
+                {
+                    marginLeft = 5,
+                    height = RequiredVisuals.IconSize,
+                    width = RequiredVisuals.IconSize,
+                    visibility = IsUnassigned(serializedProperty) ? Visibility.Visible : Visibility.Hidden
+                },
+                tooltip = "This field is required."
+            };
+            
+            propertyElement.RegisterValueChangeCallback(_ =>
             {
                 serializedProperty.serializedObject.ApplyModifiedProperties();
                 EditorUtility.SetDirty(serializedProperty.serializedObject.targetObject);
                 
                 // Force a repaint of the hierarchy
                 EditorApplication.RepaintProjectWindow();
-            }
+                
+                propertyIcon.style.visibility = IsUnassigned(serializedProperty) ? Visibility.Visible : Visibility.Hidden; 
+            });
             
-            EditorGUI.EndProperty();
+            propertyContainer.Add(propertyElement);
+            propertyContainer.Add(propertyIcon);
+            
+            return propertyContainer;
         }
 
         /// <summary>
@@ -54,7 +73,7 @@ namespace Code.Scripts.Attributes.Editor.Required
         /// </summary>
         /// <param name="serializedProperty">The property to validate.</param>
         /// <returns><c>true</c> if the property is <c>null</c> or otherwise unassigned; otherwise <c>false</c> if it has a valid reference.</returns>
-        private bool IsUnassigned(SerializedProperty serializedProperty)
+        private static bool IsUnassigned(SerializedProperty serializedProperty)
         {
             return serializedProperty.propertyType switch
             {

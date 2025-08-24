@@ -47,7 +47,8 @@ namespace Code.Scripts.Attributes.Editor.Required
 
                 if (requiredFields.Any(targetField => IsUnassigned(targetField.GetValue(objectComponent))))
                 {
-                    var iconRect = new Rect(selectionRect.xMax - RequiredVisuals.IconSize * 0.85f, selectionRect.y, RequiredVisuals.IconSize, RequiredVisuals.IconSize);
+                    var iconSize = RequiredVisuals.IconSize * 1.25f;
+                    var iconRect = new Rect(selectionRect.xMax - iconSize, selectionRect.y, iconSize, iconSize);
                     
                     GUI.Label(iconRect, new GUIContent(RequiredVisuals.RequiredIcon, "One or more required fields are unassigned."));
                     break;
