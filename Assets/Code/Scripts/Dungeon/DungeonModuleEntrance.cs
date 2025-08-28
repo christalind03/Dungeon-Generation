@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Code.Scripts.Dungeon
 {
     /// <summary>
-    /// Represents a single entrance/exit point within a <see cref="DungeonModule"/>.
+    /// Represents a single entrance/exit point within a <see cref="DungeonModuleAsset"/>.
     /// </summary>
     public class DungeonModuleEntrance : MonoBehaviour
     {
