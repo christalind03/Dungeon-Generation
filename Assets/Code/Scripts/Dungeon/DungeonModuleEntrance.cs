@@ -8,12 +8,25 @@ namespace Code.Scripts.Dungeon
     /// </summary>
     public class DungeonModuleEntrance : MonoBehaviour
     {
-        [Required, SerializeField] private Transform entrancePoint;
+        [Required]
+        [SerializeField]
+        [Tooltip("The world-space orientation and position of the entrance.")]
+        private Transform entrancePoint;
         
         [Header("Entrance Renderers")]
-        [Required, SerializeField] private GameObject openState;
-        [Required, SerializeField] private GameObject closedState;
+        [Required]
+        [SerializeField]
+        [Tooltip("The GameObject activated when the entrance is open and connected to another module.")]
+        private GameObject openState;
+        
+        [Required]
+        [SerializeField]
+        [Tooltip("The GameObject activated when the entrance is closed and unavailable for connection.")]
+        private GameObject closedState;
 
+        /// <summary>
+        /// The world-space orientation and position of the entrance.
+        /// </summary>
         public Transform EntrancePoint => entrancePoint;
 
         /// <summary>

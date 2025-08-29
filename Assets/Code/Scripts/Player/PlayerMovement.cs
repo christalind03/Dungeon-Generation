@@ -10,14 +10,32 @@ namespace Code.Scripts.Player
     public class PlayerMovement : MonoBehaviour
     {
         [Header("Parameters")]
-        [SerializeField] private float gravityForce = -9.8f;
-        [SerializeField, Min(1f)] private float movementSpeed = 15f;
+        [SerializeField]
+        [Tooltip("The downward force applied to simulate gravity")]
+        private float gravityForce = -9.8f;
+        
+        [Min(1f)]
+        [SerializeField]
+        [Tooltip("The movement speed of the player")]
+        private float movementSpeed = 15f;
         
         [Header("References")]
-        [SerializeField] private InputActionReference actionReference;
-        [SerializeField] private CharacterController characterController;
+        [SerializeField] 
+        [Tooltip("The input action that provides movement input (e.g., WASD)")]
+        private InputActionReference actionReference;
+        
+        [SerializeField]
+        [Tooltip("The CharacterController component responsible for handling collisions and movement")]
+        private CharacterController characterController;
 
+        /// <summary>
+        /// The current gravitational velocity applied to the player, updated every frame.
+        /// </summary>
         private Vector3 playerGravity;
+        
+        /// <summary>
+        /// The input action instance created from <see cref="actionReference"/> for reading movement input at runtime.
+        /// </summary>
         private InputAction inputAction;
 
         /// <summary>

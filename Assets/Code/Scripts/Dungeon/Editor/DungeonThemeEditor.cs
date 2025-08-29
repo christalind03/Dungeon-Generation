@@ -7,13 +7,31 @@ using UnityEngine.UIElements;
 
 namespace Code.Scripts.Dungeon.Editor
 {
+    /// <summary>
+    /// Custom inspector for <see cref="DungeonTheme"/>.
+    /// Provides a UI Toolkit based editor to manage the theme name, module categories, and module data.
+    /// </summary>
     [CustomEditor(typeof(DungeonTheme))]
     public class DungeonThemeEditor : UnityEditor.Editor
     {
+        /// <summary>
+        /// Serialized property for the dungeon theme's display name.
+        /// </summary>
         private SerializedProperty themeName;
+        
+        /// <summary>
+        /// Serialized property for the collection of dungeon module categories.
+        /// </summary>
         private SerializedProperty moduleCategories;
+        
+        /// <summary>
+        /// Serialized property for the collection of dungeon module entries.
+        /// </summary>
         private SerializedProperty moduleData;
 
+        /// <summary>
+        /// Contains constant property path strings for nested serialized fields used within the editor.
+        /// </summary>
         private static class PropertyPaths
         {
             public const string CategoryID = "categoryID";
@@ -27,6 +45,12 @@ namespace Code.Scripts.Dungeon.Editor
             public const string SpawnRate = "spawnRate";
         }
         
+        /// <summary>
+        /// Initializes references to <see cref="DungeonTheme"/> immediate serialized properties.
+        /// </summary>
+        /// <remarks>
+        /// Since these property paths are only used once, they do not need to be included in <see cref="PropertyPaths"/>.
+        /// </remarks>
         private void OnEnable()
         {
             themeName = serializedObject.FindProperty("themeName");
@@ -34,6 +58,10 @@ namespace Code.Scripts.Dungeon.Editor
             moduleData = serializedObject.FindProperty("moduleData");
         }
 
+        /// <summary>
+        /// Creates and configures the custom inspector interface for the <see cref="DungeonTheme"/>.
+        /// </summary>
+        /// <returns>A <see cref="VisualElement"/> containing the root of the custom inspector.</returns>
         public override VisualElement CreateInspectorGUI()
         {
             var rootElement = new VisualElement();
@@ -63,6 +91,10 @@ namespace Code.Scripts.Dungeon.Editor
             return rootElement;
         }
 
+        /// <summary>
+        /// Creates the <see cref="ListView"/> for managing module categories.
+        /// </summary>
+        /// <returns>A <see cref="ListView"/> configured to display and edit module categories.</returns>
         private BaseListView CreateCategoryList()
         {
             var moduleCategoriesList = new ListView
@@ -123,46 +155,14 @@ namespace Code.Scripts.Dungeon.Editor
             
             return moduleCategoriesList;
         }
-
-        private BaseListView CreateDataList()
-        {
-            var moduleDataList = new MultiColumnListView
-            {
-                bindingPath = moduleData.propertyPath,
-                headerTitle = moduleData.displayName,
-                reorderable = true,
-                reorderMode = ListViewReorderMode.Animated,
-                showAddRemoveFooter = true,
-                showBorder = true,
-                showBoundCollectionSize = false,
-                showFoldoutHeader = true,
-                virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight
-            };
-            
-            CreateDataColumns(moduleDataList);
-            
-            // Prevent duplicating the previous element's values when creating a new element
-            moduleDataList.itemsAdded += listIndices =>
-            {
-                foreach (var listIndex in listIndices)
-                {
-                    var insertedElement = moduleData.GetArrayElementAtIndex(listIndex);
-
-                    insertedElement.FindPropertyRelative(PropertyPaths.ModuleCategory).stringValue = string.Empty;
-                    insertedElement.FindPropertyRelative(PropertyPaths.ModulePrefab).objectReferenceValue = null;
-                    insertedElement.FindPropertyRelative(PropertyPaths.SpawnRate).floatValue = 0;
-                    insertedElement.FindPropertyRelative(PropertyPaths.SpawnOnce).boolValue = false;
-                }
-
-                serializedObject.ApplyModifiedProperties();
-            };
-            
-            moduleDataList.BindProperty(moduleData);
-            
-            return moduleDataList;
-        }
         
-        private void CreateCategoryElement(int itemIndex, Foldout itemElement, SerializedProperty serializedProperty)
+        /// <summary>
+        /// Creates the property fields for a module category entry.
+        /// </summary>
+        /// <param name="itemIndex">The index of the category within the serialized array.</param>
+        /// <param name="itemElement">The foldout element representing the category container.</param>
+        /// <param name="serializedProperty">The serialized property representing the category.</param>
+        private static void CreateCategoryElement(int itemIndex, Foldout itemElement, SerializedProperty serializedProperty)
         {
             var propertyContainerElement = new VisualElement();
 
@@ -221,7 +221,53 @@ namespace Code.Scripts.Dungeon.Editor
             
             itemElement.Add(propertyContainerElement);
         }
+
+        /// <summary>
+        /// Creates the <see cref="MultiColumnListView"/> for managing module data entries.
+        /// </summary>
+        /// <returns>A <see cref="MultiColumnListView"/> configured to display and edit module data entries.</returns>
+        private MultiColumnListView CreateDataList()
+        {
+            var moduleDataList = new MultiColumnListView
+            {
+                bindingPath = moduleData.propertyPath,
+                headerTitle = moduleData.displayName,
+                reorderable = true,
+                reorderMode = ListViewReorderMode.Animated,
+                showAddRemoveFooter = true,
+                showBorder = true,
+                showBoundCollectionSize = false,
+                showFoldoutHeader = true,
+                virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight
+            };
+            
+            CreateDataColumns(moduleDataList);
+            
+            // Prevent duplicating the previous element's values when creating a new element
+            moduleDataList.itemsAdded += listIndices =>
+            {
+                foreach (var listIndex in listIndices)
+                {
+                    var insertedElement = moduleData.GetArrayElementAtIndex(listIndex);
+
+                    insertedElement.FindPropertyRelative(PropertyPaths.ModuleCategory).stringValue = string.Empty;
+                    insertedElement.FindPropertyRelative(PropertyPaths.ModulePrefab).objectReferenceValue = null;
+                    insertedElement.FindPropertyRelative(PropertyPaths.SpawnRate).floatValue = 0;
+                    insertedElement.FindPropertyRelative(PropertyPaths.SpawnOnce).boolValue = false;
+                }
+
+                serializedObject.ApplyModifiedProperties();
+            };
+            
+            moduleDataList.BindProperty(moduleData);
+            
+            return moduleDataList;
+        }
         
+        /// <summary>
+        /// Creates and configures the columns for the module data list view.
+        /// </summary>
+        /// <param name="moduleDataList">The <see cref="MultiColumnListView"/> to configure.</param>
         private void CreateDataColumns(MultiColumnListView moduleDataList)
         {
             var moduleCategory = new Column
@@ -325,6 +371,13 @@ namespace Code.Scripts.Dungeon.Editor
             moduleDataList.columns.Add(spawnOnce);
         }
 
+        /// <summary>
+        /// Returns a display-friendly label for a module category given its unique identifier.
+        /// </summary>
+        /// <param name="categoryID">The unique identifier of the category.</param>
+        /// <returns>
+        /// A formatted string containing the index and category name, or <c>null</c> if no category matches the indentifier.
+        /// </returns>
         private string DisplayCategoryLabel(string categoryID)
         {
             for (var arrayIndex = 0; arrayIndex < moduleCategories.arraySize; arrayIndex++)

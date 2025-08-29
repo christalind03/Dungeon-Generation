@@ -9,14 +9,32 @@ namespace Code.Scripts.Player
     public class PlayerLook : MonoBehaviour
     {
         [Header("Parameters")]
-        [SerializeField, Min(0.1f)] private float lookSensitivity = 1f;
+        [Min(0.1f)]
+        [SerializeField]
+        [Tooltip("The sensitivity multiplier for controller/mouse input")]
+        private float lookSensitivity = 1f;
 
         [Header("References")]
-        [SerializeField] private InputActionReference actionReference;
-        [SerializeField] private Transform cameraTransform;
-        [SerializeField] private Transform playerTransform;
+        [SerializeField]
+        [Tooltip("The reference for the input action used for capturing look input (e.g., mouse delta)")]
+        private InputActionReference actionReference;
+        
+        [SerializeField]
+        [Tooltip("The world-space orientation and position of the camera")]
+        private Transform cameraTransform;
+        
+        [SerializeField]
+        [Tooltip("The world-space orientation and position of the player")]
+        private Transform playerTransform;
 
+        /// <summary>
+        /// The accumulated vertical (pitch) rotation value applied to the camera.
+        /// </summary>
         private float pitchRotation;
+        
+        /// <summary>
+        /// The input action instance created from <see cref="actionReference"/> for reading look input at runtime.
+        /// </summary>
         private InputAction inputAction;
         
         /// <summary>

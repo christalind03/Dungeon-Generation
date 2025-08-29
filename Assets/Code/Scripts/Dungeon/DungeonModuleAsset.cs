@@ -11,9 +11,20 @@ namespace Code.Scripts.Dungeon
     /// </summary>
     public class DungeonModuleAsset : MonoBehaviour
     {
-        [Required, SerializeField] private Collider[] moduleBounds;
-        [Required, SerializeField] private DungeonModuleEntrance[] moduleEntrances;
+        [Required]
+        [SerializeField]
+        [Tooltip("The colliders that define the physical bounds of the dungeon module.")]
+        private Collider[] moduleBounds;
         
+        [Required]
+        [SerializeField]
+        [Tooltip("The entrances that can connect this module to other dungeon modules.")]
+        private DungeonModuleEntrance[] moduleEntrances;
+        
+        /// <summary>
+        /// A dynamic list of entrances that have not yet been connected to other modules.
+        /// This is initialized at runtime and updated as entrances are used.
+        /// </summary>
         private List<DungeonModuleEntrance> availableEntrances;
 
         /// <summary>
