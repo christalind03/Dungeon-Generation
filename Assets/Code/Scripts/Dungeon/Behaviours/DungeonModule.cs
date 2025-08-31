@@ -4,12 +4,12 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace Code.Scripts.Dungeon
+namespace Code.Scripts.Dungeon.Behaviours
 {
     /// <summary>
     /// Represents a modular section of a dungeon.
     /// </summary>
-    public class DungeonModuleAsset : MonoBehaviour
+    public class DungeonModule : MonoBehaviour
     {
         [Required]
         [SerializeField]

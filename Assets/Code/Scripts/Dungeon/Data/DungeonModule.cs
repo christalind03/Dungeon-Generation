@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Code.Scripts.Dungeon
+namespace Code.Scripts.Dungeon.Data
 {
     /// <summary>
     /// Represents a single dungeon module that can be used during dungeon generation.

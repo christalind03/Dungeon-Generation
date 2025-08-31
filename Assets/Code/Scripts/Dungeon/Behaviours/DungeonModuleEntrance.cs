@@ -1,10 +1,10 @@
 using Code.Scripts.Attributes;
 using UnityEngine;
 
-namespace Code.Scripts.Dungeon
+namespace Code.Scripts.Dungeon.Behaviours
 {
     /// <summary>
-    /// Represents a single entrance/exit point within a <see cref="DungeonModuleAsset"/>.
+    /// Represents a single entrance/exit point within a <see cref="DungeonModule"/>.
     /// </summary>
     public class DungeonModuleEntrance : MonoBehaviour
     {

@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Code.Scripts.Dungeon
+namespace Code.Scripts.Dungeon.Data
 {
     [Serializable]
     public class DungeonModuleCategory

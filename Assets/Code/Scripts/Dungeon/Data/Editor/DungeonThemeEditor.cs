@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
-namespace Code.Scripts.Dungeon.Editor
+namespace Code.Scripts.Dungeon.Data.Editor
 {
     /// <summary>
     /// Custom inspector for <see cref="DungeonTheme"/>.

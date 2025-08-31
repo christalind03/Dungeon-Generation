@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Code.Scripts.Dungeon
+namespace Code.Scripts.Dungeon.Data
 {
     /// <summary>
     /// Defines the dataset used for procedural dungeon generation.
