@@ -1,4 +1,5 @@
 using System;
+using Code.Scripts.Attributes;
 using UnityEngine;
 
 namespace Code.Scripts.Dungeon.Data
@@ -7,17 +8,20 @@ namespace Code.Scripts.Dungeon.Data
     /// Represents a single dungeon module that can be used during dungeon generation.
     /// </summary>
     [Serializable]
-    public class DungeonModule
+    public struct ModuleEntry
     {
+        [Required]
         [SerializeField]
         [Tooltip("The identifier of the category this module belongs to.")]
         private string moduleCategory;
         
+        [Required(displayLabel: false)]
         [SerializeField]
         [Tooltip("The prefab associated with this dungeon module.")]
         private GameObject modulePrefab;
         
-        [Min(0)]
+        [Required(displayLabel: false)]
+        [Range(0, 1)]
         [SerializeField]
         [Tooltip("The relative probability of this module being chosen during dungeon generation.")]
         public float spawnRate;

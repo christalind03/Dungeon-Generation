@@ -1,3 +1,4 @@
+using Code.Scripts.Attributes;
 using UnityEngine;
 
 namespace Code.Scripts.Dungeon.Data
@@ -7,33 +8,34 @@ namespace Code.Scripts.Dungeon.Data
     /// This includes the theme's name, available module categories, and the individual models that can be spawned.
     /// </summary>
     [CreateAssetMenu(fileName = "Dungeon_Theme", menuName = "Dungeon Theme")]
-    public class DungeonTheme : ScriptableObject
+    public class Theme : ScriptableObject
     {
+        [Required]
         [SerializeField]
         [Tooltip("The display name of the dungeon theme")]
-        private string themeName;
+        private string themeTitle;
         
         [SerializeField]
         [Tooltip("The collection of categories that organize and define spawn rules for modules in this theme")]
-        private DungeonModuleCategory[] moduleCategories;
+        private ModuleCategory[] moduleCategories;
         
         [SerializeField]
         [Tooltip("The collection of all modules that belong to this theme")]
-        private DungeonModule[] moduleData;
+        private ModuleEntry[] moduleData;
         
         /// <summary>
         /// The display name of the dungeon theme.
         /// </summary>
-        public string ThemeName => themeName;
+        public string ThemeTitle => themeTitle;
         
         /// <summary>
         /// The collection of categories that organize and define spawn rules for modules in this theme.
         /// </summary>
-        public DungeonModuleCategory[] ModuleCategories => moduleCategories;
+        public ModuleCategory[] ModuleCategories => moduleCategories;
         
         /// <summary>
         /// The collection of all modules that belong to this theme.
         /// </summary>
-        public DungeonModule[] ModuleData => moduleData;
+        public ModuleEntry[] ModuleData => moduleData;
     }
 }

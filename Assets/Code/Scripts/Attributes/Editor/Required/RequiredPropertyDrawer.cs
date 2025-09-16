@@ -1,7 +1,9 @@
 #if UNITY_EDITOR
 
+using System.Reflection;
 using UnityEditor;
 using UnityEditor.UIElements;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Code.Scripts.Attributes.Editor.Required
@@ -21,6 +23,7 @@ namespace Code.Scripts.Attributes.Editor.Required
         /// <param name="serializedProperty">The property being drawn.</param>
         public override VisualElement CreatePropertyGUI(SerializedProperty serializedProperty)
         {
+            var attributeInfo = fieldInfo.GetCustomAttribute<Attributes.Required>();
             var propertyContainer = new VisualElement
             {
                 style =
@@ -30,8 +33,9 @@ namespace Code.Scripts.Attributes.Editor.Required
                 }
             };
 
-            var propertyElement = new PropertyField(serializedProperty, serializedProperty.displayName)
+            var propertyElement = new PropertyField(serializedProperty)
             {
+                label = attributeInfo.DisplayLabel ? serializedProperty.displayName : string.Empty,
                 style =
                 {
                     flexGrow = 1
@@ -46,11 +50,12 @@ namespace Code.Scripts.Attributes.Editor.Required
                     marginLeft = 5,
                     height = RequiredVisuals.IconSize,
                     width = RequiredVisuals.IconSize,
-                    visibility = IsUnassigned(serializedProperty) ? Visibility.Visible : Visibility.Hidden
+                    visibility = IsAssigned(serializedProperty) ? Visibility.Hidden : Visibility.Visible
                 },
                 tooltip = "This field is required."
             };
             
+            propertyElement.BindProperty(serializedProperty);
             propertyElement.RegisterValueChangeCallback(_ =>
             {
                 serializedProperty.serializedObject.ApplyModifiedProperties();
@@ -59,7 +64,7 @@ namespace Code.Scripts.Attributes.Editor.Required
                 // Force a repaint of the hierarchy
                 EditorApplication.RepaintProjectWindow();
                 
-                propertyIcon.style.visibility = IsUnassigned(serializedProperty) ? Visibility.Visible : Visibility.Hidden; 
+                propertyIcon.style.visibility = IsAssigned(serializedProperty) ? Visibility.Hidden : Visibility.Visible; 
             });
             
             propertyContainer.Add(propertyElement);
@@ -73,12 +78,15 @@ namespace Code.Scripts.Attributes.Editor.Required
         /// </summary>
         /// <param name="serializedProperty">The property to validate.</param>
         /// <returns><c>true</c> if the property is <c>null</c> or otherwise unassigned; otherwise <c>false</c> if it has a valid reference.</returns>
-        private static bool IsUnassigned(SerializedProperty serializedProperty)
+        private static bool IsAssigned(SerializedProperty serializedProperty)
         {
             return serializedProperty.propertyType switch
             {
-                SerializedPropertyType.ObjectReference when serializedProperty.objectReferenceValue => false,
-                _ => true
+                SerializedPropertyType.Float => !Mathf.Approximately(serializedProperty.floatValue, float.Epsilon),
+                SerializedPropertyType.Integer => serializedProperty.intValue != 0,
+                SerializedPropertyType.ObjectReference => serializedProperty.objectReferenceValue,
+                SerializedPropertyType.String => !string.IsNullOrEmpty(serializedProperty.stringValue),
+                _ => false
             };
         }
     }
