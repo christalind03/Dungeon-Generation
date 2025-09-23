@@ -2,7 +2,8 @@
     "name": "Code.Scripts.Dungeon.Data",
     "rootNamespace": "",
     "references": [
-        "GUID:ba70ffd21697c7f41b1c018ad1ca4e08"
+        "GUID:ba70ffd21697c7f41b1c018ad1ca4e08",
+        "GUID:259a19df08dee8e4e951464929e14fd8"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

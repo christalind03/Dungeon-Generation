@@ -48,7 +48,8 @@ namespace Code.Scripts.Dungeon.Data.Editor
 
                     if (infoValue is Array infoArray)
                     {
-                        EnforceWeights(assetTarget, currentInfo, infoArray, ref hasErrors);
+                        // Temporarily disable validating weights until the user interface for module data has been updated
+                        // EnforceWeights(assetTarget, currentInfo, infoArray, ref hasErrors);
                         
                         foreach (var arrayElement in infoArray)
                         {
@@ -79,23 +80,24 @@ namespace Code.Scripts.Dungeon.Data.Editor
         /// </remarks>
         private static void EnforceWeights(UnityEngine.Object unityObject, FieldInfo infoValue, Array targetArray, ref bool hasErrors)
         {
-            if (targetArray.Length <= 0) return;
-
-            var cumulativeWeight = 0f;
-            
-            foreach (var arrayElement in targetArray)
+            if (0 < targetArray.Length)
             {
-                var fieldInfos = arrayElement.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-
-                foreach (var fieldInfo in fieldInfos)
+                var cumulativeWeight = 0f;
+                
+                foreach (var arrayElement in targetArray)
                 {
-                    if (fieldInfo.Name != "spawnRate") continue;
-
-                    cumulativeWeight += (float)fieldInfo.GetValue(arrayElement);
+                    var fieldInfos = arrayElement.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                
+                    foreach (var fieldInfo in fieldInfos)
+                    {
+                        if (fieldInfo.Name != "spawnRate") continue;
+                
+                        cumulativeWeight += (float)fieldInfo.GetValue(arrayElement);
+                    }
                 }
+                
+                if (cumulativeWeight is >= 0.99f and <= 1f) return;
             }
-
-            if (cumulativeWeight is >= 0.99f and <= 1f) return;
             
             hasErrors = true;
             Debug.LogError($"<b>[{unityObject.GetType().Name}]</b> <b>{infoValue.Name}</b> cumulative spawn rate on <b>{unityObject.name}</b> should roughly equal 1.", unityObject);

@@ -47,27 +47,45 @@ namespace Code.Scripts.Dungeon.Data.Editor
                 containerElement = new VisualElement();
             }
             
-            var spawnLimitPropertyField = CreatePropertyField(serializedProperty, "spawnLimit");
-            
             var spawnRangePropertyField = new VisualElement();
-            var spawnMaxPropertyField = CreatePropertyField(serializedProperty, "spawnMax");
-            var spawnMinPropertyField = CreatePropertyField(serializedProperty, "spawnMin");
-
-            spawnRangePropertyField.style.marginLeft = 15;
-            spawnRangePropertyField.Add(spawnMaxPropertyField);
-            spawnRangePropertyField.Add(spawnMinPropertyField);
             
-            spawnLimitPropertyField.RegisterValueChangeCallback(changeEvent =>
+            var spawnLimitsPropertyField = CreatePropertyField(serializedProperty, "spawnLimits");
+            var spawnMaximumPropertyField = CreatePropertyField(serializedProperty, "spawnMaximum");
+            var spawnMinimumPropertyField = CreatePropertyField(serializedProperty, "spawnMinimum");
+
+            spawnMaximumPropertyField.style.marginLeft = 15;
+            spawnMinimumPropertyField.style.marginLeft = 15;
+            
+            spawnRangePropertyField.Add(spawnLimitsPropertyField);
+            spawnRangePropertyField.Add(spawnMaximumPropertyField);
+            spawnRangePropertyField.Add(spawnMinimumPropertyField);
+            
+            spawnLimitsPropertyField.RegisterValueChangeCallback(changeEvent =>
             {
-                spawnRangePropertyField.style.display = changeEvent.changedProperty.boolValue ? DisplayStyle.Flex : DisplayStyle.None;
+                var displayStyle = changeEvent.changedProperty.boolValue ? DisplayStyle.Flex : DisplayStyle.None;
+                
+                spawnMaximumPropertyField.style.display = displayStyle;
+                spawnMinimumPropertyField.style.display = displayStyle;
             });
             
+            var spawnBehaviorPropertyField = new VisualElement();
+            
+            var spawnRequiredPropertyField = CreatePropertyField(serializedProperty, "spawnRequired");
             var spawnRatePropertyField = CreatePropertyField(serializedProperty, "spawnRate");
+
+            spawnRatePropertyField.style.marginLeft = 15;
+            
+            spawnBehaviorPropertyField.Add(spawnRequiredPropertyField);
+            spawnBehaviorPropertyField.Add(spawnRatePropertyField);
+            
+            spawnRequiredPropertyField.RegisterValueChangeCallback(changeEvent =>
+            {
+                spawnRatePropertyField.style.display = changeEvent.changedProperty.boolValue ? DisplayStyle.None : DisplayStyle.Flex;
+            });
             
             containerElement.Add(categoryTitlePropertyField);
-            containerElement.Add(spawnLimitPropertyField);
             containerElement.Add(spawnRangePropertyField);
-            containerElement.Add(spawnRatePropertyField);
+            containerElement.Add(spawnBehaviorPropertyField);
             
             return containerElement;
         }

@@ -41,7 +41,7 @@ namespace Code.Scripts.Attributes.Editor.Required
                 EnsureAssignment(monoBehaviour, monoBehaviour, ref hasErrors);
             }
 
-            if (hasErrors) return;
+            if (!hasErrors) return;
             
             EditorApplication.ExitPlaymode();
         }
@@ -72,7 +72,14 @@ namespace Code.Scripts.Attributes.Editor.Required
                 if (requiredAttribute == null) continue;
                 if (!string.IsNullOrEmpty(requiredAttribute.RequireIf))
                 {
-                    var dependencyInfo = targetObject.GetType().GetField(requiredAttribute.RequireIf, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                    var isInverted = requiredAttribute.RequireIf[0] == '!';
+                    var dependencyInfo = targetObject
+                        .GetType()
+                        .GetField(
+                            isInverted ? requiredAttribute.RequireIf[1..] : requiredAttribute.RequireIf,
+                            BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public
+                        );
+                    
                     if (dependencyInfo == null) continue;
                     
                     var shouldValidate = true;                    
@@ -80,7 +87,7 @@ namespace Code.Scripts.Attributes.Editor.Required
 
                     if (dependencyValue is bool booleanValue)
                     {
-                        shouldValidate = booleanValue;
+                        shouldValidate = isInverted ^ booleanValue;
                     }
                     
                     if (!shouldValidate) continue;
@@ -102,6 +109,7 @@ namespace Code.Scripts.Attributes.Editor.Required
         private static bool IsAssigned(object targetObject)
         {
             if (targetObject == null) return false;
+            if (targetObject is Object unityObject) return !unityObject.Equals(null);
             
             return targetObject.GetType() switch
             {

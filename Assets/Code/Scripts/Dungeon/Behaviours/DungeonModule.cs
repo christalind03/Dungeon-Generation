@@ -1,7 +1,7 @@
 using Code.Scripts.Attributes;
+using Code.Scripts.Utils;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor;
 using UnityEngine;
 
 namespace Code.Scripts.Dungeon.Behaviours
@@ -90,27 +90,11 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// </summary>
         private void OnValidate()
         {
-            var scriptName = GetType().Name;
-            
-            var missingBounds = false;
-            var missingEntrances = false;
-            
-            if (moduleBounds is not { Length: > 0 })
-            {
-                Debug.LogError($"[{scriptName}] <b>{nameof(moduleBounds)}</b> must contain at least one element.", this);
-                missingBounds = true;
-            }
-
-            if (moduleEntrances is not { Length: > 0 })
-            {
-                Debug.LogError($"[{scriptName}] <b>{nameof(moduleEntrances)}</b> must contain at least one element.", this);
-                missingEntrances = true;
-            }
-
-            if ((missingBounds || missingEntrances) && EditorApplication.isPlaying)
-            {
-                EditorApplication.ExitPlaymode();
-            }
+            ScriptValidator.LogError(
+                this,
+                (moduleBounds.Length <= 0, $"<b>{nameof(moduleBounds)}</b> must contain at least one element."),
+                (moduleEntrances.Length <= 0, $"<b>{nameof(moduleEntrances)}</b> must contain at least one element.")
+            );
         }
                 
         #endif

@@ -22,6 +22,9 @@ namespace Code.Scripts.Dungeon.Data.Editor
         /// </summary>
         private SerializedProperty titleProperty;
 
+        private SerializedProperty maximumModulesProperty;
+        private SerializedProperty minimumModulesProperty;
+        
         /// <summary>
         /// Serialized property for the collection of dungeon module categories.
         /// </summary>
@@ -41,6 +44,8 @@ namespace Code.Scripts.Dungeon.Data.Editor
         private void OnEnable()
         {
             titleProperty = serializedObject.FindProperty("themeTitle");
+            maximumModulesProperty = serializedObject.FindProperty("maximumModules");
+            minimumModulesProperty = serializedObject.FindProperty("minimumModules");
             categoriesProperty = serializedObject.FindProperty("moduleCategories");
             dataProperty = serializedObject.FindProperty("moduleData");
         }
@@ -62,6 +67,9 @@ namespace Code.Scripts.Dungeon.Data.Editor
                 }
             };
 
+            var maximumModulesField = new PropertyField(maximumModulesProperty);
+            var minimumModulesField = new PropertyField(minimumModulesProperty);
+            
             var categoriesField = CategoriesField();
             var dataField = DataField();
             
@@ -81,6 +89,8 @@ namespace Code.Scripts.Dungeon.Data.Editor
             });
 
             rootElement.Add(titleField);
+            rootElement.Add(maximumModulesField);
+            rootElement.Add(minimumModulesField);
             rootElement.Add(categoriesField);
             rootElement.Add(categoriesWeight);
             rootElement.Add(dataField);
@@ -88,7 +98,7 @@ namespace Code.Scripts.Dungeon.Data.Editor
 
             return rootElement;
         }
-
+        
         /// <summary>
         /// Creates the <see cref="ListView"/> for managing module categories.
         /// </summary>
@@ -105,6 +115,10 @@ namespace Code.Scripts.Dungeon.Data.Editor
                 showBorder = true,
                 showBoundCollectionSize = true,
                 showFoldoutHeader = true,
+                style =
+                {
+                    marginTop = 5
+                },
                 virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight
             };
             
@@ -117,9 +131,10 @@ namespace Code.Scripts.Dungeon.Data.Editor
 
                     targetElement.FindPropertyRelative("categoryID").stringValue = GUID.Generate().ToString();
                     targetElement.FindPropertyRelative("categoryTitle").stringValue = string.Empty;
-                    targetElement.FindPropertyRelative("spawnLimit").boolValue = false;
-                    targetElement.FindPropertyRelative("spawnMax").intValue = 0;
-                    targetElement.FindPropertyRelative("spawnMin").intValue = 0;
+                    targetElement.FindPropertyRelative("spawnLimits").boolValue = false;
+                    targetElement.FindPropertyRelative("spawnMaximum").intValue = 0;
+                    targetElement.FindPropertyRelative("spawnMinimum").intValue = 0;
+                    targetElement.FindPropertyRelative("spawnRequired").boolValue = false;
                     targetElement.FindPropertyRelative("spawnRate").floatValue = 0;
                 }
                 
@@ -145,6 +160,10 @@ namespace Code.Scripts.Dungeon.Data.Editor
                 showBorder = true,
                 showBoundCollectionSize = true,
                 showFoldoutHeader = true,
+                style =
+                {
+                    marginTop = 5
+                },
                 virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight
             };
 

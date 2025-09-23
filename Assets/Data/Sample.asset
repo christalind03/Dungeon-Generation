@@ -13,11 +13,60 @@ MonoBehaviour:
   m_Name: Sample
   m_EditorClassIdentifier: 
   themeTitle: Sample
+  maximumModules: 15
+  minimumModules: 5
   moduleCategories:
-  - categoryID: b191765f2961412459a4047c881547eb
-    categoryTitle: 
-    spawnLimit: 0
-    spawnMax: 0
-    spawnMin: 0
-    spawnRate: 0
-  moduleData: []
+  - categoryID: c7e57af4aac3ab34eace6cd854860e91
+    categoryTitle: Rooms
+    spawnLimits: 1
+    spawnMaximum: 3
+    spawnMinimum: 1
+    spawnRequired: 0
+    spawnRate: 0.25
+  - categoryID: ded023e6b6afb3045878612277ebbc8a
+    categoryTitle: Hallways
+    spawnLimits: 0
+    spawnMaximum: 0
+    spawnMinimum: 0
+    spawnRequired: 0
+    spawnRate: 0.5
+  - categoryID: ccc7305a043f60a4a893c9267f58a6ff
+    categoryTitle: Special
+    spawnLimits: 0
+    spawnMaximum: 0
+    spawnMinimum: 0
+    spawnRequired: 0
+    spawnRate: 0.25
+  moduleData:
+  - moduleCategory: c7e57af4aac3ab34eace6cd854860e91
+    modulePrefab: {fileID: 8069236824017554570, guid: b10875bb0accd5c4aa2274bca15a2630, type: 3}
+    spawnRate: 0.2
+    spawnOnce: 0
+  - moduleCategory: c7e57af4aac3ab34eace6cd854860e91
+    modulePrefab: {fileID: 6437792012686716771, guid: 2c9b40bebca875b43a52fe01f02ec9ed, type: 3}
+    spawnRate: 0.2
+    spawnOnce: 0
+  - moduleCategory: c7e57af4aac3ab34eace6cd854860e91
+    modulePrefab: {fileID: 6319599683221793305, guid: 9cec5d82bbbff32438a5170baf1176d6, type: 3}
+    spawnRate: 0.2
+    spawnOnce: 0
+  - moduleCategory: c7e57af4aac3ab34eace6cd854860e91
+    modulePrefab: {fileID: 898026347517242092, guid: 72cb34f583dc12544b4283cb928191ed, type: 3}
+    spawnRate: 0.2
+    spawnOnce: 0
+  - moduleCategory: c7e57af4aac3ab34eace6cd854860e91
+    modulePrefab: {fileID: 5010771002466037116, guid: 6135f52befb31934399a149c7239f928, type: 3}
+    spawnRate: 0.2
+    spawnOnce: 0
+  - moduleCategory: ded023e6b6afb3045878612277ebbc8a
+    modulePrefab: {fileID: 4292134459100478249, guid: 055d01ca91ad9da43806dfd5558402b9, type: 3}
+    spawnRate: 0.3
+    spawnOnce: 0
+  - moduleCategory: ded023e6b6afb3045878612277ebbc8a
+    modulePrefab: {fileID: 8596345687976222852, guid: cfc8e5bdc3f7c264e8ef75dde4ac4d63, type: 3}
+    spawnRate: 0.3
+    spawnOnce: 0
+  - moduleCategory: ded023e6b6afb3045878612277ebbc8a
+    modulePrefab: {fileID: 1346761115139246579, guid: d0b14030ea9a9cd409040e8e40a98e11, type: 3}
+    spawnRate: 0.3
+    spawnOnce: 0

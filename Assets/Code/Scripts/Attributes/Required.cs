@@ -28,7 +28,7 @@ namespace Code.Scripts.Attributes
         /// </param>
         /// <param name="requireIf">
         /// The name of another field that this field is conditionally required by.
-        /// If specified, this field will only be considered required when the referenced field meets its condition (non-null or true).
+        /// When set, this field is required only if the referenced field is non-null/true (invert with <c>!</c>).
         /// Defaults to an empty string, meaning the field is always required.
         /// </param>
         public Required(bool displayLabel = true, string requireIf = "")

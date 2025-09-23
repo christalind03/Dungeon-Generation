@@ -25,21 +25,25 @@ namespace Code.Scripts.Dungeon.Data
         
         [SerializeField]
         [Tooltip("If enabled, the number of modules that may spawn from this category is limited to a random value between spawnMin and spawnMax")]
-        private bool spawnLimit;
+        private bool spawnLimits;
         
         [Required(requireIf: "spawnLimit")]
         [Min(0)]
         [SerializeField]
         [Tooltip("The maximum number of modules that may spawn from this category")]
-        private int spawnMax;
+        private int spawnMaximum;
 
-        [Required(requireIf: "spawnLimit")]
+        [Required(requireIf: "spawnLimits")]
         [Min(0)]
         [SerializeField]
         [Tooltip("The minimum number of modules that may spawn from this category")]
-        private int spawnMin;
+        private int spawnMinimum;
+
+        [SerializeField]
+        [Tooltip("If enabled, at least one module from this category is guaranteed to spawn (nullifies <c>spawnRate</c>)")]
+        private bool spawnRequired;
         
-        [Required]
+        [Required(requireIf: "!spawnRequired")]
         [Range(0, 1)]
         [SerializeField]
         [Tooltip("The relative probability of this category being chosen during dungeon generation")]
@@ -58,17 +62,22 @@ namespace Code.Scripts.Dungeon.Data
         /// <summary>
         /// Determines whether a limit is enforced on the number of modules that may spawn from this category.
         /// </summary>
-        public bool SpawnLimit => spawnLimit;
+        public bool SpawnLimits => spawnLimits;
         
         /// <summary>
         /// The maximum number of modules that may spawn from this category.
         /// </summary>
-        public int SpawnMax => spawnMax;
+        public int SpawnMaximum => spawnMaximum;
         
         /// <summary>
         /// The minimum number of modules that may spawn from this category.
         /// </summary>
-        public int SpawnMin => spawnMin;
+        public int SpawnMinimum => spawnMinimum;
+
+        /// <summary>
+        /// Determines whether at least one module from this category is guaranteed to spawn (nullifies <see cref="SpawnRate"/>)
+        /// </summary>
+        public bool SpawnRequired => spawnRequired;
         
         /// <summary>
         /// The relative probability of this category being chosen during dungeon generation.
