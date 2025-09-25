@@ -66,6 +66,22 @@ namespace Code.Scripts.Attributes.Editor.Required
                 
                 propertyIcon.style.visibility = IsAssigned(serializedProperty) ? Visibility.Hidden : Visibility.Visible; 
             });
+
+            if (attributeInfo.NormalizeLayout)
+            {
+                propertyElement.schedule.Execute(() =>
+                {
+                    var fieldLabel = propertyElement.Q<Label>();
+                    if (fieldLabel == null) return;
+                 
+                    fieldLabel.style.flexBasis = Length.Percent(50);
+                    
+                    var inputField = fieldLabel.parent.Q<VisualElement>(className: "unity-base-field__input");
+                    if (inputField == null) return;
+                    
+                    inputField.style.flexBasis = Length.Percent(50);
+                });
+            }
             
             propertyContainer.Add(propertyElement);
             propertyContainer.Add(propertyIcon);
@@ -82,6 +98,7 @@ namespace Code.Scripts.Attributes.Editor.Required
         {
             return serializedProperty.propertyType switch
             {
+                SerializedPropertyType.Boolean => true,
                 SerializedPropertyType.Float => !Mathf.Approximately(serializedProperty.floatValue, float.Epsilon),
                 SerializedPropertyType.Integer => serializedProperty.intValue != 0,
                 SerializedPropertyType.ObjectReference => serializedProperty.objectReferenceValue,

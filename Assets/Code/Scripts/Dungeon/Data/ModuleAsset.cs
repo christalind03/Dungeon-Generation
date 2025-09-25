@@ -8,13 +8,8 @@ namespace Code.Scripts.Dungeon.Data
     /// Represents a single dungeon module that can be used during dungeon generation.
     /// </summary>
     [Serializable]
-    public struct ModuleEntry
+    public struct ModuleAsset
     {
-        [Required]
-        [SerializeField]
-        [Tooltip("The identifier of the category this module belongs to.")]
-        private string moduleCategory;
-        
         [Required(displayLabel: false)]
         [SerializeField]
         [Tooltip("The prefab associated with this dungeon module.")]
@@ -29,11 +24,6 @@ namespace Code.Scripts.Dungeon.Data
         [SerializeField]
         [Tooltip("Determines whether this module can only appear once in the generated dungeon.")]
         private bool spawnOnce;
-        
-        /// <summary>
-        /// The identifier of the category this module belongs to.
-        /// </summary>
-        public string ModuleCategory => moduleCategory;
         
         /// <summary>
         /// The prefab associated with this dungeon module.

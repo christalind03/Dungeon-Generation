@@ -14,6 +14,8 @@ namespace Code.Scripts.Attributes
         /// </summary>
         public readonly bool DisplayLabel;
 
+        public readonly bool NormalizeLayout;
+        
         /// <summary>
         /// Specifies the name of another field that this field is conditionally required by.
         /// </summary>
@@ -26,14 +28,18 @@ namespace Code.Scripts.Attributes
         /// If <c>true</c>, the field's label will be displayed in the inspector.
         /// If <c>false</c>, the field's label will still be validated, but its label will be hidden.
         /// </param>
+        /// <param name="normalizeLayout">
+        /// If <c>true</c>, adjusts the field's layout to align consistently with surrounding fields in the inspector.
+        /// </param>
         /// <param name="requireIf">
         /// The name of another field that this field is conditionally required by.
         /// When set, this field is required only if the referenced field is non-null/true (invert with <c>!</c>).
         /// Defaults to an empty string, meaning the field is always required.
         /// </param>
-        public Required(bool displayLabel = true, string requireIf = "")
+        public Required(bool displayLabel = true, bool normalizeLayout = false, string requireIf = "")
         {
             DisplayLabel = displayLabel;
+            NormalizeLayout = normalizeLayout;
             RequireIf = requireIf;
         }
     }

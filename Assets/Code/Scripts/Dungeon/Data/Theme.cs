@@ -1,7 +1,6 @@
 using Code.Scripts.Attributes;
-using System;
-using System.Linq;
 using Code.Scripts.Utils;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -32,12 +31,8 @@ namespace Code.Scripts.Dungeon.Data
         private int minimumModules;
         
         [SerializeField]
-        [Tooltip("The collection of categories that organize and define spawn rules for modules in this theme")]
-        private ModuleCategory[] moduleCategories;
-        
-        [SerializeField]
-        [Tooltip("The collection of all modules that belong to this theme")]
-        private ModuleEntry[] moduleData;
+        [Tooltip("Defines which module assets belong to which module category")]
+        private ModuleData[] moduleData;
         
         /// <summary>
         /// The display name of the dungeon theme.
@@ -54,33 +49,27 @@ namespace Code.Scripts.Dungeon.Data
         /// </summary>
         public int MinimumModules => minimumModules;
         
-        /// <summary>
-        /// The collection of categories that organize and define spawn rules for modules in this theme.
-        /// </summary>
-        public ModuleCategory[] ModuleCategories => moduleCategories;
+        public ModuleData[] ModuleData => moduleData;
         
-        /// <summary>
-        /// The collection of all modules that belong to this theme.
-        /// </summary>
-        public ModuleEntry[] ModuleData => moduleData;
-
         #if UNITY_EDITOR
         
         /// <summary>
         /// Validates this theme's configuration and logs errors to help catch setup issues early.
         /// </summary>
-        private void OnValidate()
+        public void OnValidate()
         {
+            if (EditorApplication.isPlaying) return;
+            
             ScriptValidator.LogError(
                 this,
                 (maximumModules < minimumModules, $"<b>{nameof(maximumModules)}</b> must be greater than <b>{nameof(minimumModules)}</b>"),
-                (moduleCategories.Length <= 0, $"<b>{nameof(moduleCategories)}</b> must contain at least one element."),
                 (moduleData.Length <= 0, $"<b>{nameof(moduleData)}</b> must contain at least one element."),
-                (ContainsInvalidBounds(), $"All <b>{nameof(moduleCategories)}</b> entries contain spawn limits that exceed this theme's bounds."),
-                (ContainsUnassignedCategories(), $"All <b>{nameof(moduleCategories)}</b> must be assigned to at least one <b>{nameof(moduleData)}</b> entry.")
+                (ContainsInvalidBounds(), $"All <b>{nameof(moduleData)}</b> entries contain spawn limits that exceed this theme's bounds."),
+                (ContainsInvalidWeights(), $"All <b>{nameof(moduleData)}</b> entries' cumulative spawn rate should roughly equal 1."),
+                (ContainsUnassignedCategories(), $"All <b>{nameof(moduleData)}</b> entries must have a valid list of <b>{nameof(ModuleAsset)}.")
             );
         }
-
+        
         /// <summary>
         /// Checks whether any module category has spawn limits that exceed this theme's defined <see cref="minimumModules"/> and <see cref="maximumModules"/> bounds.
         /// </summary>
@@ -89,41 +78,50 @@ namespace Code.Scripts.Dungeon.Data
         /// </returns>
         private bool ContainsInvalidBounds()
         {
-            var hasErrors = true;
-
-            foreach (var moduleCategory in moduleCategories)
+            foreach (var moduleElement in moduleData)
             {
+                var moduleCategory = moduleElement.ModuleCategory;
                 if (moduleCategory.SpawnLimits)
                 {
                     if (maximumModules < moduleCategory.SpawnMinimum) continue;
                 }
                 
-                hasErrors = false;
-                break;
+                return false;
             }
             
-            return hasErrors;
+            return true;
         }
 
         /// <summary>
-        /// Determines whether there are module categories that are not references by any <see cref="moduleData"/> entries.
+        /// Validates the cumulative spawn weights of both <see cref="ModuleAsset"/> and <see cref="ModuleCategory"/>.
         /// </summary>
         /// <returns>
-        /// <c>true</c> if one or more categories are unassigned; otherwise, <c>false</c>.
+        /// <c>true</c> if any category's assets or the combined categories have a total spawn weight outside the valid range; otherwise, <c>false</c>.
+        /// </returns>
+        private bool ContainsInvalidWeights()
+        {
+            var categoryWeight = 0f;
+            
+            foreach (var moduleElement in moduleData)
+            {
+                var assetWeight = moduleElement.ModuleAssets.Sum(moduleAsset => moduleAsset.SpawnRate);
+                if (assetWeight is < 0.99f or > 1f) return true;
+                
+                categoryWeight += moduleElement.ModuleCategory.SpawnRate;
+            }
+
+            return categoryWeight is < 0.99f or > 1f;
+        }
+        
+        /// <summary>
+        /// Determines whether there are module categories that do not have a valid list of <see cref="ModuleAsset"/>.
+        /// </summary>
+        /// <returns>
+        /// <c>true</c> if one or more categories do not contain a valid list of <see cref="ModuleAsset"/>; otherwise, <c>false</c>.
         /// </returns>
         private bool ContainsUnassignedCategories()
         {
-            var unassignedCategories = moduleCategories.Select(moduleCategory => moduleCategory.CategoryID).ToList();
-
-            foreach (var moduleEntry in moduleData)
-            {
-                if (unassignedCategories.Contains(moduleEntry.ModuleCategory))
-                {
-                    unassignedCategories.Remove(moduleEntry.ModuleCategory);
-                }
-            }
-            
-            return 0 < unassignedCategories.Count;
+            return moduleData.Any(moduleElement => moduleElement.ModuleAssets.Length <= 0);
         }
         
         #endif

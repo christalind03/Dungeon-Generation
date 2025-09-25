@@ -4,7 +4,6 @@ using Code.Scripts.Attributes.Editor.Required;
 using System;
 using System.Reflection;
 using UnityEditor;
-using UnityEngine;
 
 namespace Code.Scripts.Dungeon.Data.Editor
 {
@@ -42,18 +41,25 @@ namespace Code.Scripts.Dungeon.Data.Editor
                 var assetTarget = AssetDatabase.LoadAssetAtPath<Theme>(assetPath);
                 var fieldInfo = assetTarget.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
 
+                assetTarget.OnValidate();
+                
                 foreach (var currentInfo in fieldInfo)
                 {
                     var infoValue = currentInfo.GetValue(assetTarget);
-
                     if (infoValue is Array infoArray)
                     {
-                        // Temporarily disable validating weights until the user interface for module data has been updated
-                        // EnforceWeights(assetTarget, currentInfo, infoArray, ref hasErrors);
+                        var moduleData = (ModuleData[])infoArray;
                         
-                        foreach (var arrayElement in infoArray)
+                        foreach (var moduleElement in moduleData)
                         {
-                            RequiredValidator.EnsureAssignment(assetTarget, arrayElement, ref hasErrors);
+                            RequiredValidator.EnsureAssignment(assetTarget, moduleElement.ModuleCategory, ref hasErrors);
+                            if (hasErrors) break;
+
+                            foreach (var moduleAsset in moduleElement.ModuleAssets)
+                            {
+                                RequiredValidator.EnsureAssignment(assetTarget, moduleAsset, ref hasErrors);
+                                if (hasErrors) break;
+                            }
                         }
                     }
                     else
@@ -66,41 +72,6 @@ namespace Code.Scripts.Dungeon.Data.Editor
             if (!hasErrors) return;
             
             EditorApplication.ExitPlaymode();
-        }
-
-        /// <summary>
-        /// Validates that the cumulative <c>spawnRate</c> for a given array of elements roughly sum to <c>1.0</c>.
-        /// </summary>
-        /// <param name="unityObject">The <see cref="UnityEngine.Object"/> being validated, used for context in error logging.</param>
-        /// <param name="infoValue">The <see cref="FieldInfo"/> representing teh array field being validated.</param>
-        /// <param name="targetArray">The array whose elements contain <c>spawnRate</c> fields to sum.</param>
-        /// <param name="hasErrors">A reference to the error flag that will be set to <c>true</c> if the cumulative weight is invalid.</param>
-        /// <remarks>
-        /// If the cumulative weight does not fall within the [0.99, 1.0] range, an error message is logged to the console and Play Mode is prevented from starting.
-        /// </remarks>
-        private static void EnforceWeights(UnityEngine.Object unityObject, FieldInfo infoValue, Array targetArray, ref bool hasErrors)
-        {
-            if (0 < targetArray.Length)
-            {
-                var cumulativeWeight = 0f;
-                
-                foreach (var arrayElement in targetArray)
-                {
-                    var fieldInfos = arrayElement.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-                
-                    foreach (var fieldInfo in fieldInfos)
-                    {
-                        if (fieldInfo.Name != "spawnRate") continue;
-                
-                        cumulativeWeight += (float)fieldInfo.GetValue(arrayElement);
-                    }
-                }
-                
-                if (cumulativeWeight is >= 0.99f and <= 1f) return;
-            }
-            
-            hasErrors = true;
-            Debug.LogError($"<b>[{unityObject.GetType().Name}]</b> <b>{infoValue.Name}</b> cumulative spawn rate on <b>{unityObject.name}</b> should roughly equal 1.", unityObject);
         }
     }
 }

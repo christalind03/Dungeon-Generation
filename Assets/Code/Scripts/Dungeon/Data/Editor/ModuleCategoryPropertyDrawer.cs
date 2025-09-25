@@ -1,6 +1,5 @@
 #if UNITY_EDITOR
 
-using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
@@ -13,6 +12,8 @@ namespace Code.Scripts.Dungeon.Data.Editor
     [CustomPropertyDrawer(typeof(ModuleCategory))]
     public class ModuleCategoryPropertyDrawer : PropertyDrawer
     {
+        private const int SubregionMargin = 15;
+        
         /// <summary>
         /// Creates the custom property inspector user interface for <see cref="ModuleCategory"/>.
         /// </summary>
@@ -22,30 +23,9 @@ namespace Code.Scripts.Dungeon.Data.Editor
         /// <returns>A <see cref="VisualElement"/> container holding all generated fields for this property.</returns>
         public override VisualElement CreatePropertyGUI(SerializedProperty serializedProperty)
         {
-            VisualElement containerElement;
-            
-            var categoryTitle = serializedProperty.FindPropertyRelative("categoryTitle");
-            var categoryTitlePropertyField = new PropertyField(categoryTitle);
-            
-            var isArrayElement = serializedProperty.propertyPath.Contains("Array");
-            if (isArrayElement)
-            {
-                var arrayIndex = ParseIndex(serializedProperty);
-                containerElement = new Foldout
-                {
-                    text = $"Element {arrayIndex}"
-                };
-                
-                categoryTitlePropertyField.RegisterValueChangeCallback(changeEvent =>
-                {
-                    var changedTitle = changeEvent.changedProperty.stringValue;
-                    (containerElement as Foldout).text = string.IsNullOrEmpty(changedTitle)? $"Element {ParseIndex(serializedProperty)}" : changedTitle;
-                });
-            }
-            else
-            {
-                containerElement = new VisualElement();
-            }
+            var containerElement = new VisualElement();
+
+            var categoryTitlePropertyField = CreatePropertyField(serializedProperty, "categoryTitle");
             
             var spawnRangePropertyField = new VisualElement();
             
@@ -53,8 +33,8 @@ namespace Code.Scripts.Dungeon.Data.Editor
             var spawnMaximumPropertyField = CreatePropertyField(serializedProperty, "spawnMaximum");
             var spawnMinimumPropertyField = CreatePropertyField(serializedProperty, "spawnMinimum");
 
-            spawnMaximumPropertyField.style.marginLeft = 15;
-            spawnMinimumPropertyField.style.marginLeft = 15;
+            spawnMaximumPropertyField.style.marginLeft = SubregionMargin;
+            spawnMinimumPropertyField.style.marginLeft = SubregionMargin;
             
             spawnRangePropertyField.Add(spawnLimitsPropertyField);
             spawnRangePropertyField.Add(spawnMaximumPropertyField);
@@ -73,7 +53,7 @@ namespace Code.Scripts.Dungeon.Data.Editor
             var spawnRequiredPropertyField = CreatePropertyField(serializedProperty, "spawnRequired");
             var spawnRatePropertyField = CreatePropertyField(serializedProperty, "spawnRate");
 
-            spawnRatePropertyField.style.marginLeft = 15;
+            spawnRatePropertyField.style.marginLeft = SubregionMargin;
             
             spawnBehaviorPropertyField.Add(spawnRequiredPropertyField);
             spawnBehaviorPropertyField.Add(spawnRatePropertyField);
@@ -82,23 +62,12 @@ namespace Code.Scripts.Dungeon.Data.Editor
             {
                 spawnRatePropertyField.style.display = changeEvent.changedProperty.boolValue ? DisplayStyle.None : DisplayStyle.Flex;
             });
-            
+
             containerElement.Add(categoryTitlePropertyField);
             containerElement.Add(spawnRangePropertyField);
             containerElement.Add(spawnBehaviorPropertyField);
             
             return containerElement;
-        }
-
-        /// <summary>
-        /// Extracts the array index from the given property's path string.
-        /// </summary>
-        /// <param name="serializedProperty">The <see cref="SerializedProperty"/> whose path should be parsed for an array index.</param>
-        /// <returns>A zero-based index of the array element if parsing succeeds; otherwise <c>-1</c>.</returns>
-        private static int ParseIndex(SerializedProperty serializedProperty)
-        {
-            var regexMatch = Regex.Match(serializedProperty.propertyPath, @"\[(\d+)\]");
-            return regexMatch.Success ? int.Parse(regexMatch.Groups[1].Value) : -1;
         }
         
         /// <summary>
@@ -111,9 +80,9 @@ namespace Code.Scripts.Dungeon.Data.Editor
         {
             var propertyRelative = serializedProperty.FindPropertyRelative(targetProperty);
             var propertyField = new PropertyField(propertyRelative);
-            
+
             propertyField.BindProperty(propertyRelative);
-            
+
             return propertyField;
         }
     }

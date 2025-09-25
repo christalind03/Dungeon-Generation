@@ -2,7 +2,6 @@
 
 using System.Collections.Generic;
 using System.Reflection;
-using Code.Scripts.Attributes.Editor.Required;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -22,13 +21,15 @@ namespace Code.Scripts.Dungeon.Data.Editor
         /// </summary>
         private SerializedProperty titleProperty;
 
+        /// <summary>
+        /// Serialized property for the maximum number of modules that can be present within a theme.
+        /// </summary>
         private SerializedProperty maximumModulesProperty;
-        private SerializedProperty minimumModulesProperty;
         
         /// <summary>
-        /// Serialized property for the collection of dungeon module categories.
+        /// Serialized property for the minimum number of modules that can be present within a theme.
         /// </summary>
-        private SerializedProperty categoriesProperty;
+        private SerializedProperty minimumModulesProperty;
 
         /// <summary>
         /// Serialized property for the collection of dungeon module entries.
@@ -46,7 +47,6 @@ namespace Code.Scripts.Dungeon.Data.Editor
             titleProperty = serializedObject.FindProperty("themeTitle");
             maximumModulesProperty = serializedObject.FindProperty("maximumModules");
             minimumModulesProperty = serializedObject.FindProperty("minimumModules");
-            categoriesProperty = serializedObject.FindProperty("moduleCategories");
             dataProperty = serializedObject.FindProperty("moduleData");
         }
 
@@ -70,242 +70,157 @@ namespace Code.Scripts.Dungeon.Data.Editor
             var maximumModulesField = new PropertyField(maximumModulesProperty);
             var minimumModulesField = new PropertyField(minimumModulesProperty);
             
-            var categoriesField = CategoriesField();
             var dataField = DataField();
+            var weightsField = WeightsField();
             
-            var categoriesWeight = CumulativeWeightField(categoriesProperty);
-            var dataWeight = CumulativeWeightField(dataProperty);
+            CalculateDataWeight(weightsField);
             
-            // Ensure that when this property changes, the properties that are dependent on it are also updated
-            categoriesField.TrackPropertyValue(categoriesProperty, serializedProperty =>
+            dataField.TrackPropertyValue(dataProperty, _ =>
             {
-                CalculateCumulativeWeight(serializedProperty, categoriesWeight);
-                dataField?.RefreshItems();
+                CalculateDataWeight(weightsField);
             });
-
-            dataField.TrackPropertyValue(dataProperty, serializedProperty =>
-            {
-                CalculateCumulativeWeight(serializedProperty, dataWeight);
-            });
-
+            
             rootElement.Add(titleField);
             rootElement.Add(maximumModulesField);
             rootElement.Add(minimumModulesField);
-            rootElement.Add(categoriesField);
-            rootElement.Add(categoriesWeight);
             rootElement.Add(dataField);
-            rootElement.Add(dataWeight);
-
+            rootElement.Add(weightsField);
+            
             return rootElement;
         }
         
         /// <summary>
-        /// Creates the <see cref="ListView"/> for managing module categories.
+        /// Creates and configures a <see cref="MultiColumnListView"/> element for displaying and editing the serialized <see cref="dataProperty"/> collection.
         /// </summary>
-        /// <returns>A <see cref="ListView"/> configured to display and edit module categories.</returns>
-        private ListView CategoriesField()
-        {
-            var categoryList = new ListView
-            {
-                bindingPath = categoriesProperty.propertyPath,
-                headerTitle = categoriesProperty.displayName,
-                reorderable = true,
-                reorderMode = ListViewReorderMode.Animated,
-                showAddRemoveFooter = true,
-                showBorder = true,
-                showBoundCollectionSize = true,
-                showFoldoutHeader = true,
-                style =
-                {
-                    marginTop = 5
-                },
-                virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight
-            };
-            
-            // Prevent duplicating the previous element's values when creating a new element
-            categoryList.itemsAdded += listIndices =>
-            {
-                foreach (var listIndex in listIndices)
-                {
-                    var targetElement = categoriesProperty.GetArrayElementAtIndex(listIndex);
-
-                    targetElement.FindPropertyRelative("categoryID").stringValue = GUID.Generate().ToString();
-                    targetElement.FindPropertyRelative("categoryTitle").stringValue = string.Empty;
-                    targetElement.FindPropertyRelative("spawnLimits").boolValue = false;
-                    targetElement.FindPropertyRelative("spawnMaximum").intValue = 0;
-                    targetElement.FindPropertyRelative("spawnMinimum").intValue = 0;
-                    targetElement.FindPropertyRelative("spawnRequired").boolValue = false;
-                    targetElement.FindPropertyRelative("spawnRate").floatValue = 0;
-                }
-                
-                serializedObject.ApplyModifiedProperties();
-            };
-            
-            return categoryList;
-        }
-        
-        /// <summary>
-        /// Creates the <see cref="MultiColumnListView"/> for managing module data entries.
-        /// </summary>
-        /// <returns>A <see cref="MultiColumnListView"/> configured to display and edit module data entries.</returns>
+        /// <returns>
+        /// A fully configured <see cref="MultiColumnListView"/> that supports reordering, add/removing content, and dynamic row heights.
+        /// </returns>
         private MultiColumnListView DataField()
         {
             var dataList = new MultiColumnListView
             {
                 bindingPath = dataProperty.propertyPath,
-                headerTitle = dataProperty.displayName,
                 reorderable = true,
                 reorderMode = ListViewReorderMode.Animated,
                 showAddRemoveFooter = true,
                 showBorder = true,
-                showBoundCollectionSize = true,
-                showFoldoutHeader = true,
+                showBoundCollectionSize = false,
                 style =
                 {
-                    marginTop = 5
+                    marginTop = 5,
+                    marginBottom = 5
                 },
                 virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight
             };
-
-            var fieldInfos = typeof(ModuleEntry).GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-
-            foreach (var fieldInfo in fieldInfos)
-            {
-                var dataColumn = new Column();
-                
-                if (fieldInfo.Name == "moduleCategory")
-                {
-                    dataColumn.bindCell = (itemElement, itemIndex) =>
-                    {
-                        itemElement.Clear();
-                        
-                        var categoryIDs = new List<string>();
-
-                        for (var i = 0; i < categoriesProperty.arraySize; i++)
-                        {
-                            var categoryProperty = categoriesProperty.GetArrayElementAtIndex(i);
-                            var categoryID = categoryProperty.FindPropertyRelative("categoryID").stringValue;
-                            
-                            categoryIDs.Add(categoryID);
-                        }
-
-                        var moduleEntry = dataProperty.GetArrayElementAtIndex(itemIndex);
-                        var moduleCategory = moduleEntry.FindPropertyRelative("moduleCategory");
-                        
-                        // We must manually render the required icon due to custom dropdown logic
-                        var propertyField = new PopupField<string>(
-                            new List<string>(),
-                            0,
-                            CategoryLabel,
-                            CategoryLabel
-                        )
-                        {
-                            choices = categoryIDs,
-                            style =
-                            {
-                                flexGrow = 1
-                            }
-                        };
-
-                        var propertyIcon = new Image
-                        {
-                            image = RequiredVisuals.RequiredIcon,
-                            style =
-                            {
-                                marginLeft = 5,
-                                height = RequiredVisuals.IconSize,
-                                width = RequiredVisuals.IconSize,
-                                visibility = string.IsNullOrEmpty(propertyField.value) ? Visibility.Visible : Visibility.Hidden
-                            }
-                        };
-
-                        propertyField.BindProperty(moduleCategory);
-                        propertyField.RegisterValueChangedCallback(_ =>
-                        {
-                            moduleCategory.serializedObject.ApplyModifiedProperties();
-                            EditorUtility.SetDirty(moduleCategory.serializedObject.targetObject);
-                            
-                            propertyIcon.style.visibility = string.IsNullOrEmpty(propertyField.value) ? Visibility.Visible : Visibility.Hidden;
-                        });
-
-                        itemElement.Add(propertyField);
-                        itemElement.Add(propertyIcon);
-;                    };
-
-                    dataColumn.destroyCell = itemElement => itemElement.Clear();
-                    
-                    dataColumn.makeCell = () => new VisualElement
-                    {
-                        style =
-                        {
-                            alignItems = Align.Center,
-                            flexDirection = FlexDirection.Row
-                        }
-                    };
-                    
-                    dataColumn.unbindCell = (itemElement, _) => itemElement.Unbind();
-                }
-
-                dataColumn.bindingPath = fieldInfo.Name;
-                dataColumn.stretchable = true;
-                dataColumn.title = ObjectNames.NicifyVariableName(fieldInfo.Name);
-                
-                dataList.columns.Add(dataColumn);
-            }
             
-            // Prevent duplicating the previous element's values when creating a new element
-            dataList.itemsAdded += listIndices =>
-            {
-                foreach (var listIndex in listIndices)
-                {
-                    var targetElement = dataProperty.GetArrayElementAtIndex(listIndex);
-
-                    targetElement.FindPropertyRelative("moduleCategory").stringValue = string.Empty;
-                    targetElement.FindPropertyRelative("modulePrefab").objectReferenceValue = null;
-                    targetElement.FindPropertyRelative("spawnRate").floatValue = 0f;
-                    targetElement.FindPropertyRelative("spawnOnce").boolValue = false;
-                }
-
-                serializedObject.ApplyModifiedProperties();
-            };
+            dataList.columns.Add(CategoryColumn());
+            dataList.columns.Add(AssetsColumn());
             
             return dataList;
         }
-
+        
         /// <summary>
-        /// Returns a display-friendly label for a module category given its unique identifier.
+        /// Creates a <see cref="Column"/> for selecting and display the module category associated with each entry in the data list.
         /// </summary>
-        /// <param name="targetID">The unique identifier of the category.</param>
         /// <returns>
-        /// A formatted string containing the index and category name, or <c>null</c> if no category matches the identifier.
+        /// A stretchable <see cref="Column"/> bound to the <c>moduleCategory</c> property.
         /// </returns>
-        private string CategoryLabel(string targetID)
+        private static Column CategoryColumn()
         {
-            for (var i = 0; i < categoriesProperty.arraySize; i++)
+            return new Column
             {
-                var categoryProperty = categoriesProperty.GetArrayElementAtIndex(i);
-                
-                var categoryID = categoryProperty.FindPropertyRelative("categoryID").stringValue;
-                var categoryTitle = categoryProperty.FindPropertyRelative("categoryTitle").stringValue;
-                
-                if (categoryID == targetID) return $"[{i}] {categoryTitle}";
-            }
-
-            return null;
+                bindingPath = "moduleCategory",
+                stretchable = true,
+                title = "Module Category"
+            };
         }
 
         /// <summary>
+        /// Creates a <see cref="Column"/> that displays and manages the collection of module assets for each data entry.
+        /// This includes dynamically recalculating and displaying their cumulative weight.
+        /// </summary>
+        /// <returns>
+        /// A stretchable <see cref="Column"/> bound to the <c>moduleAssets</c> property, with custom cell creation, binding, and destruction logic.
+        /// </returns>
+        private Column AssetsColumn()
+        {
+            return new Column
+            {
+                bindingPath = "moduleAssets",
+                bindCell = (itemElement, itemIndex) =>
+                {
+                    var assetsList = itemElement.Q<MultiColumnListView>();
+                    var weightsField = itemElement.Q<FloatField>();
+                    
+                    var dataElement = dataProperty.GetArrayElementAtIndex(itemIndex);
+                    var assetsProperty = dataElement.FindPropertyRelative("moduleAssets");
+                    
+                    CalculateAssetsWeight(assetsProperty, weightsField);
+                    
+                    assetsList.BindProperty(assetsProperty);
+                    assetsList.TrackPropertyValue(assetsProperty, _ =>
+                    {
+                        CalculateAssetsWeight(assetsProperty, weightsField);
+                    });
+                    
+                },
+                destroyCell = itemElement => itemElement.Clear(),
+                makeCell = () =>
+                {
+                    var rootElement = new VisualElement();
+                    
+                    rootElement.Add(AssetsList());
+                    rootElement.Add(WeightsField());
+                    
+                    return rootElement;
+                },
+                stretchable = true,
+                title = "Module Assets",
+                unbindCell = (itemElement, _) => itemElement.Unbind()
+            };
+        }
+
+        /// <summary>
+        /// Creates a <see cref="MultiColumnListView"/> for displaying and editing the collection of <see cref="ModuleAsset"/> objects for each data entry.
+        /// </summary>
+        /// <returns>
+        /// A fully configured <see cref="MultiColumnListView"/> with columns generated from the <see cref="ModuleAsset"/> fields.
+        /// </returns>
+        private static MultiColumnListView AssetsList()
+        {
+            var assetsList = new MultiColumnListView
+            {
+                showAddRemoveFooter = true,
+                showBorder = true,
+                showBoundCollectionSize = false,
+                virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight
+            };
+                    
+            var fieldInfos = typeof(ModuleAsset).GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                    
+            foreach (var fieldInfo in fieldInfos)
+            {
+                var dataColumn = new Column
+                {
+                    bindingPath = fieldInfo.Name,
+                    stretchable = true,
+                    title = ObjectNames.NicifyVariableName(fieldInfo.Name)
+                };
+                        
+                assetsList.columns.Add(dataColumn);
+            }
+            
+            return assetsList;
+        }
+        
+        /// <summary>
         /// Creates a disabled <see cref="FloatField"/> that displays the cumulative spawn rate for a given serialized property representing a collection of weighted elements.
         /// </summary>
-        /// <param name="serializedProperty">
-        /// The <see cref="SerializedProperty"/> used to calculate the cumulative weight value.
-        /// Usually represents a collection or element whose weight contributes to a total.
-        /// </param>
         /// <returns>A read-only <see cref="FloatField"/> element showing the calculated cumulative weight.</returns>
         /// <remarks>
         /// The field is created as disabled to indicate that it is informational only and cannot be directly edited by the user.
         /// </remarks>
-        private static FloatField CumulativeWeightField(SerializedProperty serializedProperty)
+        private static FloatField WeightsField()
         {
             var floatField = new FloatField("Cumulative Weight")
             {
@@ -317,40 +232,78 @@ namespace Code.Scripts.Dungeon.Data.Editor
                 }
             };
             
-            CalculateCumulativeWeight(serializedProperty, floatField);
-            
             return floatField;
         }
-
+        
         /// <summary>
         /// Calculates the cumulative weight of all elements within the specified serialized property and updates the provided
         /// <see cref="FloatField"/> with the result.
         /// </summary>
-        /// <param name="serializedProperty">
+        /// <param name="propertyList">
         /// The <see cref="SerializedProperty"/> representing an array of elements, each expected to have a <c>spawnRate</c> property contributing to the total weight.
         /// </param>
         /// <param name="targetField">The <see cref="FloatField"/> that will display the calculated cumulative weight.</param>
-        private static void CalculateCumulativeWeight(SerializedProperty serializedProperty, FloatField targetField)
+        private static void CalculateWeight(List<SerializedProperty> propertyList, FloatField targetField)
         {
             var cumulativeWeight = 0f;
-
-            if (serializedProperty.isArray)
+        
+            foreach (var arrayElement in propertyList)
             {
-                for (var arrayIndex = 0; arrayIndex < serializedProperty.arraySize; arrayIndex++)
-                {
-                    var arrayElement = serializedProperty.GetArrayElementAtIndex(arrayIndex);
-                    var spawnRate = arrayElement.FindPropertyRelative("spawnRate");
-                    
-                    cumulativeWeight += spawnRate.floatValue;
-                }
-
-                var isValid = cumulativeWeight is >= 0.99f and <= 1f;
+                var spawnRate = arrayElement.FindPropertyRelative("spawnRate");
                 
-                targetField.labelElement.style.color = isValid ? StyleKeyword.Null : Color.softRed;
-                targetField.labelElement.style.unityFontStyleAndWeight = isValid ? FontStyle.Normal : FontStyle.Bold;
+                cumulativeWeight += spawnRate.floatValue;
             }
+    
+            var isValid = cumulativeWeight is >= 0.99f and <= 1f;
+            
+            targetField.labelElement.style.color = isValid ? StyleKeyword.Null : Color.softRed;
+            targetField.labelElement.style.unityFontStyleAndWeight = isValid ? FontStyle.Normal : FontStyle.Bold;
             
             targetField.SetValueWithoutNotify(cumulativeWeight);
+        }
+        
+        /// <summary>
+        /// Calculates the cumulative weight of all <see cref="ModuleAsset"/> in the given <see cref="SerializedProperty"/> array and updates the provided <see cref="FloatField"/>.
+        /// </summary>
+        /// <param name="assetsProperty">
+        /// The <see cref="SerializedProperty"/> array representing the list of module assets.
+        /// </param>
+        /// <param name="weightsField">
+        /// The read-only <see cref="FloatField"/> used to display the cumulative weight.
+        /// </param>
+        private void CalculateAssetsWeight(SerializedProperty assetsProperty, FloatField weightsField)
+        {
+            var propertyList = new List<SerializedProperty>();
+
+            for (var propertyIndex = 0; propertyIndex < assetsProperty.arraySize; propertyIndex++)
+            {
+                var assetProperty = assetsProperty.GetArrayElementAtIndex(propertyIndex);
+                            
+                propertyList.Add(assetProperty);
+            }
+                        
+            CalculateWeight(propertyList, weightsField);
+        }
+        
+        /// <summary>
+        /// Calculates the cumulative weight of all <see cref="ModuleCategory"/> assignments in the serialized data array and updates the provided <see cref="FloatField"/>.
+        /// </summary>
+        /// <param name="weightsField">
+        /// The read-only <see cref="FloatField"/> used to display the cumulative category weight.
+        /// </param>
+        private void CalculateDataWeight(FloatField weightsField)
+        {
+            var propertyList = new List<SerializedProperty>();
+
+            for (var propertyIndex = 0; propertyIndex < dataProperty.arraySize; propertyIndex++)
+            {
+                var dataElement = dataProperty.GetArrayElementAtIndex(propertyIndex);
+                var categoryProperty = dataElement.FindPropertyRelative("moduleCategory");
+                            
+                propertyList.Add(categoryProperty);
+            }
+                        
+            CalculateWeight(propertyList, weightsField);
         }
     }
 }

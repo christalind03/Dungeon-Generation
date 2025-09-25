@@ -44,20 +44,20 @@ namespace Code.Scripts.Dungeon.Behaviours
             var activeModules = new List<GameObject>();
             var targetModuleCount = Random.Range(activeTheme.MinimumModules, activeTheme.MaximumModules + 1);
             
-            var requiredModuleCategories = activeTheme.ModuleCategories.Select(moduleCategory => moduleCategory.SpawnRequired).ToList();
+            var requiredModuleCategories = activeTheme.ModuleData.Select(moduleElement => moduleElement.ModuleCategory.SpawnRequired).ToList();
             
             while (activeModules.Count < targetModuleCount)
             {
                 var chosenCategory = categoryProbabilities.Sample();
-
+            
                 if (chosenCategory.SpawnRequired)
                 {
                     var activeSpawnCount = 0;
                     var targetSpawnCount = Random.Range(chosenCategory.SpawnMinimum, chosenCategory.SpawnMaximum + 1);
-
+            
                     while (activeSpawnCount < targetSpawnCount)
                     {
-                        var chosenModule = categorizedModulesProbabilities[chosenCategory.CategoryID].Sample();
+                        var chosenModule = categorizedModulesProbabilities[chosenCategory].Sample();
                         
                         activeSpawnCount++;
                         activeModules.Add(Instantiate(chosenModule.ModulePrefab));
@@ -65,7 +65,7 @@ namespace Code.Scripts.Dungeon.Behaviours
                 }
                 else
                 {
-                    var chosenModule = categorizedModulesProbabilities[chosenCategory.CategoryID].Sample();
+                    var chosenModule = categorizedModulesProbabilities[chosenCategory].Sample();
                      
                     activeModules.Add(Instantiate(chosenModule.ModulePrefab));
                 }
@@ -82,8 +82,10 @@ namespace Code.Scripts.Dungeon.Behaviours
             var categoryList = new List<ModuleCategory>();
             var weightsList = new List<float>();
             
-            foreach (var moduleCategory in activeTheme.ModuleCategories)
+            foreach (var moduleElement in activeTheme.ModuleData)
             {
+                var moduleCategory = moduleElement.ModuleCategory;
+                
                 if (moduleCategory.SpawnRequired) continue;
                 
                 categoryList.Add(moduleCategory);
@@ -100,29 +102,16 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// <returns>
         /// A dictionary mapping category identifiers to <see cref="AliasProbability{TObject}"/> instances for sampling module entries within that category.
         /// </returns>
-        private static Dictionary<string, AliasProbability<ModuleEntry>> CreateCategorizedModulesProbabilities(Theme activeTheme)
+        private static Dictionary<ModuleCategory, AliasProbability<ModuleAsset>> CreateCategorizedModulesProbabilities(Theme activeTheme)
         {
-            var categorizedModules = new Dictionary<string, List<ModuleEntry>>();
-            var categorizedModulesProbabilities = new Dictionary<string, AliasProbability<ModuleEntry>>();
-
-            // Categorize all module entries based on their module category
-            foreach (var moduleEntry in activeTheme.ModuleData)
-            {
-                if (categorizedModules.TryGetValue(moduleEntry.ModuleCategory, out var entryList) == false)
-                {
-                    entryList = new List<ModuleEntry>();
-                    categorizedModules[moduleEntry.ModuleCategory] = entryList;
-                }
-                
-                entryList.Add(moduleEntry);
-            }
+            var categorizedModulesProbabilities = new Dictionary<ModuleCategory, AliasProbability<ModuleAsset>>();
             
             // Create alias probability lookup tables for module entries in each module category
-            foreach (var (moduleCategory, moduleList) in categorizedModules)
+            foreach (var moduleElement in activeTheme.ModuleData)
             {
-                categorizedModulesProbabilities[moduleCategory] = new AliasProbability<ModuleEntry>(
-                    moduleList,
-                    moduleList.Select(categorizedEntry => categorizedEntry.SpawnRate).ToList()
+                categorizedModulesProbabilities[moduleElement.ModuleCategory] = new AliasProbability<ModuleAsset>(
+                    moduleElement.ModuleAssets,
+                    moduleElement.ModuleAssets.Select(categorizedEntry => categorizedEntry.SpawnRate).ToList()
                 );
             }
             

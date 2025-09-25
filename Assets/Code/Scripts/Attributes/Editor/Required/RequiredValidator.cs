@@ -113,6 +113,7 @@ namespace Code.Scripts.Attributes.Editor.Required
             
             return targetObject.GetType() switch
             {
+                var unknownType when unknownType == typeof(bool) => true,
                 var unknownType when unknownType == typeof(float) => !Mathf.Approximately((float)targetObject, float.Epsilon),
                 var unknownType when unknownType == typeof(int) => (int)targetObject != 0,
                 var unknownType when unknownType == typeof(string) => !string.IsNullOrEmpty((string)targetObject),
