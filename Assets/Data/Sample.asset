@@ -14,16 +14,53 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   themeTitle: Sample
   maximumModules: 15
-  minimumModules: 5
+  minimumModules: 10
   moduleData:
   - moduleAssets:
-    - modulePrefab: {fileID: 0}
-      spawnRate: 0
+    - modulePrefab: {fileID: 4292134459100478249, guid: 055d01ca91ad9da43806dfd5558402b9, type: 3}
+      spawnRate: 0.33
+      spawnOnce: 1
+    - modulePrefab: {fileID: 8596345687976222852, guid: cfc8e5bdc3f7c264e8ef75dde4ac4d63, type: 3}
+      spawnRate: 0.33
+      spawnOnce: 0
+    - modulePrefab: {fileID: 1346761115139246579, guid: d0b14030ea9a9cd409040e8e40a98e11, type: 3}
+      spawnRate: 0.33
       spawnOnce: 0
     moduleCategory:
-      categoryTitle: 
-      spawnLimits: 1
+      categoryTitle: Hallways
+      spawnLimits: 0
       spawnMaximum: 0
       spawnMinimum: 0
       spawnRequired: 0
+      spawnRate: 0.75
+  - moduleAssets:
+    - modulePrefab: {fileID: 8069236824017554570, guid: b10875bb0accd5c4aa2274bca15a2630, type: 3}
+      spawnRate: 0.33
+      spawnOnce: 0
+    - modulePrefab: {fileID: 6437792012686716771, guid: 2c9b40bebca875b43a52fe01f02ec9ed, type: 3}
+      spawnRate: 0.33
+      spawnOnce: 0
+    - modulePrefab: {fileID: 6319599683221793305, guid: 9cec5d82bbbff32438a5170baf1176d6, type: 3}
+      spawnRate: 0.33
+      spawnOnce: 0
+    moduleCategory:
+      categoryTitle: Rooms
+      spawnLimits: 1
+      spawnMaximum: 3
+      spawnMinimum: 1
+      spawnRequired: 0
+      spawnRate: 0.25
+  - moduleAssets:
+    - modulePrefab: {fileID: 898026347517242092, guid: 72cb34f583dc12544b4283cb928191ed, type: 3}
+      spawnRate: 0.5
+      spawnOnce: 0
+    - modulePrefab: {fileID: 5010771002466037116, guid: 6135f52befb31934399a149c7239f928, type: 3}
+      spawnRate: 0.5
+      spawnOnce: 0
+    moduleCategory:
+      categoryTitle: Special Rooms
+      spawnLimits: 1
+      spawnMaximum: 3
+      spawnMinimum: 1
+      spawnRequired: 1
       spawnRate: 0

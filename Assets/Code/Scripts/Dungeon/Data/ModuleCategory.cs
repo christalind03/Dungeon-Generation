@@ -9,7 +9,7 @@ namespace Code.Scripts.Dungeon.Data
     /// This includes its unique identifier, display name, spawn probability, and optional spawn limits. 
     /// </summary>
     [Serializable]
-    public struct ModuleCategory : IEquatable<ModuleCategory>
+    public class ModuleCategory : IEquatable<ModuleCategory>
     {
         [Required(normalizeLayout: true)]
         [SerializeField]
