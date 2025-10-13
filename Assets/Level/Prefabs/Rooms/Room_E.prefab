@@ -492,7 +492,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1353661604808967554}
   - component: {fileID: 5184856902245000577}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Validator_A
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -533,8 +533,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 21, y: 4.098266, z: 16.780064}
-  m_Center: {x: 0, y: 1.9450161, z: 0.37388992}
+  m_Size: {x: 19.910118, y: 4.098266, z: 15.927664}
+  m_Center: {x: 0, y: 1.9450161, z: 0.003611803}
 --- !u!1 &786531673216221108
 GameObject:
   m_ObjectHideFlags: 0
@@ -2122,7 +2122,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7055601007485451162}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Validators
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3578,6 +3578,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3961615284619588957}
+  - component: {fileID: -5525005367535719470}
   m_Layer: 0
   m_Name: Room_E
   m_TagString: Untagged
@@ -3603,6 +3604,22 @@ Transform:
   - {fileID: 7055601007485451162}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-5525005367535719470
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5010771002466037116}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9790aeb5a06241bfad977ba3104cc8d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moduleBounds:
+  - {fileID: 5184856902245000577}
+  moduleEntrances:
+  - {fileID: 7529629023547517056}
 --- !u!1 &5026592263836123407
 GameObject:
   m_ObjectHideFlags: 0

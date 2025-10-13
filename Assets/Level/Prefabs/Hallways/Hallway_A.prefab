@@ -907,7 +907,7 @@ GameObject:
   m_Component:
   - component: {fileID: 731668760920645428}
   - component: {fileID: 4860827232988351451}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Validator_A
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -948,8 +948,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 12.486841, y: 4.110174, z: 9}
-  m_Center: {x: -0.24268031, y: 1.932589, z: -2}
+  m_Size: {x: 11.9234915, y: 4.08956, z: 7.9215145}
+  m_Center: {x: -0.0063414574, y: 1.9428961, z: -2.000616}
 --- !u!1 &2833633879450024257
 GameObject:
   m_ObjectHideFlags: 0
@@ -1135,7 +1135,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3544869109293149376}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Validators
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2841,7 +2841,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7954455578199418672}
   - component: {fileID: 6383760259359315552}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Validator_B
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2882,8 +2882,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 9.008429, y: 4.100908, z: 12.567733}
-  m_Center: {x: -2.00885, y: 1.9279559, z: -0.25616217}
+  m_Size: {x: 7.929371, y: 4.086121, z: 11.89552}
+  m_Center: {x: -1.997408, y: 1.9353492, z: -0.0007996559}
 --- !u!1 &7835949230044816242
 GameObject:
   m_ObjectHideFlags: 0

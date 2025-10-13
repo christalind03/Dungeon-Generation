@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   themeTitle: Sample
   maximumModules: 15
-  minimumModules: 10
+  minimumModules: 5
   moduleData:
   - moduleAssets:
     - modulePrefab: {fileID: 4292134459100478249, guid: 055d01ca91ad9da43806dfd5558402b9, type: 3}

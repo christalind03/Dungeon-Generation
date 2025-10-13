@@ -5084,7 +5084,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2311540398697938626}
   - component: {fileID: 4113653870555043057}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Validator_A
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5125,8 +5125,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 11.958108, y: 4.0872526, z: 12.9594965}
-  m_Center: {x: -0.0029826164, y: 1.9475656, z: -0.0072131157}
+  m_Size: {x: 11.923913, y: 4.0872526, z: 11.933565}
+  m_Center: {x: 0.0027165413, y: 1.9475656, z: 0.0041754246}
 --- !u!1 &8754055542062894262
 GameObject:
   m_ObjectHideFlags: 0
@@ -5136,7 +5136,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6403858211816899367}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Validators
   m_TagString: Untagged
   m_Icon: {fileID: 0}

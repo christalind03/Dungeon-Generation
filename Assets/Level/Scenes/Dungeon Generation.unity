@@ -324,6 +324,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   availableThemes:
   - {fileID: 11400000, guid: ac46358ad193fdd4e9ee9b5a9ecde80e, type: 2}
+  environmentLayer:
+    serializedVersion: 2
+    m_Bits: 8
 --- !u!4 &1718583952
 Transform:
   m_ObjectHideFlags: 0

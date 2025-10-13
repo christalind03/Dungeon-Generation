@@ -27,6 +27,8 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// </summary>
         private List<DungeonModuleEntrance> availableEntrances;
 
+        public Collider[] ModuleBounds => moduleBounds;
+        
         /// <summary>
         /// Initializes the currently available (unused) entrances at runtime and is updated as entrances are connected to other modules' entrances.
         /// </summary>
@@ -35,37 +37,24 @@ namespace Code.Scripts.Dungeon.Behaviours
             availableEntrances = moduleEntrances.ToList();
         }
         
-        /// <summary>
-        /// Calculates the total bounding volume of the module by combining all the bounds of all <see cref="moduleBounds"/>.
-        /// </summary>
-        /// <returns>A <see cref="Bounds"/> that fully contains the module.</returns>
-        public Bounds CalculateBounds()
+        public void AddAvailableEntrance(DungeonModuleEntrance moduleEntrance)
         {
-            var allBounds = moduleBounds.Select(moduleBound => moduleBound.bounds).ToArray();
-            
-            // Calculate the center of the bounding region
-            var objectCenter = allBounds.Aggregate(Vector3.zero, (current, currentBound) => current + currentBound.center);
-            objectCenter /= allBounds.Length;
-            
-            // Calculate the boundaries of the object
-            var objectBounds = new Bounds(objectCenter, Vector3.zero);
-
-            foreach (var currentBounds in allBounds)
-            {
-                objectBounds.Encapsulate(currentBounds);
-            }
-            
-            return objectBounds;
+            availableEntrances.Add(moduleEntrance);
+        }
+        
+        public bool HasAvailableEntrance()
+        {
+            return 0 < availableEntrances.Count;
         }
         
         /// <summary>
         /// Removes an entrance from the list of available entrances.
         /// This should be called once an entrance has successfully been connected with another module's entrance.
         /// </summary>
-        /// <param name="entrancePoint"></param>
-        public void RemoveAvailableEntrance(Transform entrancePoint)
+        /// <param name="moduleEntrance"></param>
+        public void RemoveAvailableEntrance(DungeonModuleEntrance moduleEntrance)
         {
-            availableEntrances.RemoveAll(availableEntrance => availableEntrance.EntrancePoint == entrancePoint);
+            availableEntrances.RemoveAll(availableEntrance => availableEntrance == moduleEntrance);
         }
         
         /// <summary>
@@ -74,12 +63,12 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// <returns>
         /// A <see cref="Transform"/> of the selected entrance or <c>null</c> if no entrances are available.
         /// </returns>
-        public Transform SelectAvailableEntrance()
+        public DungeonModuleEntrance SelectAvailableEntrance()
         {
             if (availableEntrances.Count <= 0) return null;
             
             var entranceIndex = Random.Range(0, availableEntrances.Count);
-            return availableEntrances[entranceIndex].EntrancePoint;
+            return availableEntrances[entranceIndex];
         }
         
         #if UNITY_EDITOR
