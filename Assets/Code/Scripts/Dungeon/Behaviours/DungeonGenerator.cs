@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Code.Scripts.Dungeon.Behaviours
 {
@@ -24,6 +25,10 @@ namespace Code.Scripts.Dungeon.Behaviours
         [SerializeField]
         [Tooltip("Specifies which layers are considered when detecting overlaps with existing modules.")]
         private LayerMask placementLayers;
+
+        [SerializeField]
+        [Tooltip("Called when generation has completed without error.")]
+        private UnityEvent onGenerationSuccess; 
         
         /// <summary>
         /// The currently selected <see cref="DungeonTheme"/> for generation.
@@ -185,10 +190,13 @@ namespace Code.Scripts.Dungeon.Behaviours
             // NOTE: This is for debugging purposes only...
             Debug.Log($"Spawned: {moduleCount}/{moduleLimit}, Backtracked: {backtrackAttempts}");
             
+            // Disable any remaining open entrances
             foreach (var connectableModule in connectableModules)
             {
                 connectableModule.ToggleEntrances(false);                
             }
+            
+            onGenerationSuccess.Invoke();
         }
         
         /// <summary>

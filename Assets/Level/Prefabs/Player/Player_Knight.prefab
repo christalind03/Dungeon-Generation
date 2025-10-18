@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5312426092539182786}
   - component: {fileID: 1687463551289235247}
   m_Layer: 0
-  m_Name: Player
+  m_Name: Player_Knight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -54,13 +54,13 @@ CharacterController:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Height: 2
+  m_Height: 2.5
   m_Radius: 0.5
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 0.195, z: 0}
 --- !u!114 &5312426092539182786
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -119,7 +119,7 @@ Transform:
   m_GameObject: {fileID: 5693846917606038230}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.35000002, z: 0.5}
+  m_LocalPosition: {x: 0, y: 0.5, z: 0.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -216,12 +216,32 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -4025133613917730222, guid: de1f71d689584cc42bc1bacd37c1ad46, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -3198420049219177596, guid: de1f71d689584cc42bc1bacd37c1ad46, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: de1f71d689584cc42bc1bacd37c1ad46, type: 3}
       propertyPath: m_Name
       value: Knight
       objectReference: {fileID: 0}
+    - target: {fileID: 2856234247975315476, guid: de1f71d689584cc42bc1bacd37c1ad46, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3899312069614297733, guid: de1f71d689584cc42bc1bacd37c1ad46, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: -7232241048097875652, guid: de1f71d689584cc42bc1bacd37c1ad46, type: 3}
+    - {fileID: -3198420049219177596, guid: de1f71d689584cc42bc1bacd37c1ad46, type: 3}
+    - {fileID: 2856234247975315476, guid: de1f71d689584cc42bc1bacd37c1ad46, type: 3}
+    - {fileID: -4025133613917730222, guid: de1f71d689584cc42bc1bacd37c1ad46, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: de1f71d689584cc42bc1bacd37c1ad46, type: 3}

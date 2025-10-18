@@ -34,31 +34,28 @@ MonoBehaviour:
       spawnRequired: 0
       spawnRate: 0.75
   - moduleAssets:
-    - modulePrefab: {fileID: 8069236824017554570, guid: b10875bb0accd5c4aa2274bca15a2630, type: 3}
-      spawnRate: 0.33
-      spawnOnce: 0
     - modulePrefab: {fileID: 6437792012686716771, guid: 2c9b40bebca875b43a52fe01f02ec9ed, type: 3}
       spawnRate: 0.33
       spawnOnce: 0
     - modulePrefab: {fileID: 6319599683221793305, guid: 9cec5d82bbbff32438a5170baf1176d6, type: 3}
       spawnRate: 0.33
       spawnOnce: 0
+    - modulePrefab: {fileID: 5010771002466037116, guid: 6135f52befb31934399a149c7239f928, type: 3}
+      spawnRate: 0.33
+      spawnOnce: 0
     moduleCategory:
       categoryTitle: Rooms
-      spawnLimits: 0
-      spawnMaximum: 0
-      spawnMinimum: 0
+      spawnLimits: 1
+      spawnMaximum: 3
+      spawnMinimum: 1
       spawnRequired: 0
       spawnRate: 0.25
   - moduleAssets:
-    - modulePrefab: {fileID: 898026347517242092, guid: 72cb34f583dc12544b4283cb928191ed, type: 3}
-      spawnRate: 0.5
-      spawnOnce: 0
-    - modulePrefab: {fileID: 5010771002466037116, guid: 6135f52befb31934399a149c7239f928, type: 3}
-      spawnRate: 0.5
-      spawnOnce: 0
+    - modulePrefab: {fileID: 8069236824017554570, guid: b10875bb0accd5c4aa2274bca15a2630, type: 3}
+      spawnRate: 1
+      spawnOnce: 1
     moduleCategory:
-      categoryTitle: Special
+      categoryTitle: Spawn
       spawnLimits: 0
       spawnMaximum: 0
       spawnMinimum: 0
