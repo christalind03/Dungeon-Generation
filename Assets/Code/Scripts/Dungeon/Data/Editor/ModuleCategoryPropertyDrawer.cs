@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 namespace Code.Scripts.Dungeon.Data.Editor
 {
     /// <summary>
-    /// Custom property drawer for the <see cref="ModuleCategory"/> struct.
+    /// Provides a custom property drawer for the <see cref="ModuleCategory"/> struct.
     /// </summary>
     [CustomPropertyDrawer(typeof(ModuleCategory))]
     public class ModuleCategoryPropertyDrawer : PropertyDrawer
