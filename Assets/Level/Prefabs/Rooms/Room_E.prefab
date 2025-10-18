@@ -5832,7 +5832,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1271742563314708792}
-  - component: {fileID: 6685904022662416084}
   m_Layer: 0
   m_Name: Entrances
   m_TagString: Untagged
@@ -5856,24 +5855,6 @@ Transform:
   - {fileID: 7101265170342362132}
   m_Father: {fileID: 3961615284619588957}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6685904022662416084
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6991245922294257259}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9790aeb5a06241bfad977ba3104cc8d0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moduleBounds:
-  - {fileID: 5184856902245000577}
-  moduleEntrances:
-  - entrancePoint: {fileID: 0}
-    openState: {fileID: 0}
-    closedState: {fileID: 0}
 --- !u!1 &7031166351523108701
 GameObject:
   m_ObjectHideFlags: 0

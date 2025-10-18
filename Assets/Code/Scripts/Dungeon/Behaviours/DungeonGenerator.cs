@@ -184,6 +184,11 @@ namespace Code.Scripts.Dungeon.Behaviours
 
             // NOTE: This is for debugging purposes only...
             Debug.Log($"Spawned: {moduleCount}/{moduleLimit}, Backtracked: {backtrackAttempts}");
+            
+            foreach (var connectableModule in connectableModules)
+            {
+                connectableModule.ToggleEntrances(false);                
+            }
         }
         
         /// <summary>
@@ -479,8 +484,9 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// <param name="targetModule">The <see cref="DungeonModule"/> whose connection state is being updated.</param>
         private void RefreshConnections(DungeonModule targetModule)
         {
-            if (connectableModules.Contains(targetModule) == false && targetModule.ContainsConnectableEntrance())
+            if (targetModule.ContainsConnectableEntrance())
             {
+                if (connectableModules.Contains(targetModule)) return;
                 connectableModules.Add(targetModule);
             }
             else
@@ -535,7 +541,11 @@ namespace Code.Scripts.Dungeon.Behaviours
             var dungeonLink = historyEntry.Entrance;
             if (dungeonLink is not null)
             {
-                dungeonLink.DungeonModule?.RegisterConnectableEntrance(dungeonLink);
+                var connectedModule = dungeonLink.DungeonModule;
+                if (connectedModule is not null)
+                {
+                    connectedModule.RegisterConnectableEntrance(dungeonLink);
+                }
             }
             
             if (requiredModules.ContainsKey((historyEntry.Asset, historyEntry.Category)))

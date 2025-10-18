@@ -34,13 +34,7 @@ namespace Code.Scripts.Dungeon.Behaviours
             {
                 moduleEntrance.AssignModule(this);
             }
-        }
-
-        /// <summary>
-        /// Automatically sets all entrances of this module to the <c>open</c> state.
-        /// </summary>
-        private void Start()
-        {
+            
             ToggleEntrances(true);
         }
         
