@@ -464,18 +464,13 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// </returns>
         private bool ContainsIntersections(Collider[] targetBounds)
         {
-            var containsInteractions = false;
-
             foreach (var moduleBounds in targetBounds)
             {
                 var hitContacts = Physics.OverlapBox(moduleBounds.bounds.center, moduleBounds.bounds.extents, Quaternion.identity, placementLayers);
-                if (hitContacts.All(hitContact => hitContact.transform.root == moduleBounds.transform.root)) continue;
-
-                containsInteractions = true;
-                break;
+                if (hitContacts.Any(hitContact => hitContact.transform.root != moduleBounds.transform.root)) return false;
             }
 
-            return containsInteractions;
+            return false;
         }
 
         /// <summary>
