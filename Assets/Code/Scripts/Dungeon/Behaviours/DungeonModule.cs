@@ -1,6 +1,7 @@
 using Code.Scripts.Attributes;
 using Code.Scripts.Utils;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace Code.Scripts.Dungeon.Behaviours
@@ -17,7 +18,7 @@ namespace Code.Scripts.Dungeon.Behaviours
         
         [SerializeField]
         [Tooltip("The entrances that can connect this module to other dungeon modules.")]
-        private List<DungeonLink> moduleEntrances;
+        private List<DungeonPassage> moduleEntrances;
         
         /// <summary>
         /// Gets the collection of <see cref="Collider"/> components that define the physical bounds of this module.
@@ -50,20 +51,20 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// <summary>
         /// Registers a new connectable entrance to this module's list of connectable entrances.
         /// </summary>
-        /// <param name="dungeonLink">The <see cref="DungeonLink"/> instance representing the entrance to be registered.</param>
-        public void RegisterConnectableEntrance(DungeonLink dungeonLink)
+        /// <param name="dungeonPassage">The <see cref="DungeonPassage"/> instance representing the entrance to be registered.</param>
+        public void RegisterConnectableEntrance(DungeonPassage dungeonPassage)
         {
-            moduleEntrances.Add(dungeonLink);
+            moduleEntrances.Add(dungeonPassage);
         }
         
         /// <summary>
         /// Removes an entrance from the list of available entrances.
         /// This should be called once an entrance has successfully been connected with another module's entrance.
         /// </summary>
-        /// <param name="dungeonLink"></param>
-        public void RemoveConnectableEntrance(DungeonLink dungeonLink)
+        /// <param name="dungeonPassage">The <see cref="DungeonPassage"/> instance to be removed.</param>
+        public void RemoveConnectableEntrance(DungeonPassage dungeonPassage)
         {
-            moduleEntrances.RemoveAll(availableEntrance => availableEntrance == dungeonLink);
+            moduleEntrances.RemoveAll(availableEntrance => availableEntrance == dungeonPassage);
         }
         
         /// <summary>
@@ -72,7 +73,7 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// <returns>
         /// A <see cref="Transform"/> of the selected entrance or <c>null</c> if no entrances are available.
         /// </returns>
-        public DungeonLink SelectConnectableEntrance()
+        public DungeonPassage SelectConnectableEntrance()
         {
             if (moduleEntrances.Count <= 0) return null;
             
@@ -99,7 +100,7 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// Ensures <see cref="moduleBounds"/> and <see cref="moduleEntrances"/> are not empty and logs errors if requirements are not met.
         /// If validation fails while in Play mode, the editor will immediately exit Play mode to prevent further issues regarding dungeon generation.
         /// </summary>
-        private void OnValidate()
+        public void OnValidate()
         {
             ScriptValidator.LogError(
                 this,

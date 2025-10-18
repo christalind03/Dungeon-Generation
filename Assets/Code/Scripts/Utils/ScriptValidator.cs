@@ -40,9 +40,10 @@ namespace Code.Scripts.Utils
                 hasErrors = true;
             }
 
-            if (!hasErrors) return;
-            
-            EditorApplication.ExitPlaymode();
+            if (hasErrors)
+            {
+                EditorApplication.ExitPlaymode();
+            }
         }
     }
 }

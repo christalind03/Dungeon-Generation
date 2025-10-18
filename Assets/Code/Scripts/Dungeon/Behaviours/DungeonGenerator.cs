@@ -1,4 +1,5 @@
 using Code.Scripts.Algorithms;
+using Code.Scripts.Attributes;
 using Code.Scripts.Dungeon.Data;
 using Code.Scripts.Utils;
 using System;
@@ -22,10 +23,17 @@ namespace Code.Scripts.Dungeon.Behaviours
         [Tooltip("References to the available dungeon theme assets used by this dungeon.")]
         private DungeonTheme[] availableThemes;
         
+        [Required]
         [SerializeField]
         [Tooltip("Specifies which layers are considered when detecting overlaps with existing modules.")]
         private LayerMask placementLayers;
 
+        [Header("Generation Callbacks")]
+        
+        [SerializeField]
+        [Tooltip("Called when generation has failed.")]
+        private UnityEvent onGenerationFailed;
+        
         [SerializeField]
         [Tooltip("Called when generation has completed without error.")]
         private UnityEvent onGenerationSuccess; 
@@ -106,7 +114,7 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// <item><description>Spawning modules until the target count is reached, respecting required category constraints</description></item>
         /// </list>
         /// </summary>
-        private void Generate()
+        public void Generate()
         {
             InitializeGeneration();
 
@@ -187,16 +195,21 @@ namespace Code.Scripts.Dungeon.Behaviours
 
             #endif
 
-            // NOTE: This is for debugging purposes only...
-            Debug.Log($"Spawned: {moduleCount}/{moduleLimit}, Backtracked: {backtrackAttempts}");
-            
-            // Disable any remaining open entrances
-            foreach (var connectableModule in connectableModules)
+            var generationFailed = generationError != GenerationError.None || moduleCount < moduleLimit;
+            if (generationFailed)
             {
-                connectableModule.ToggleEntrances(false);                
+                onGenerationFailed.Invoke();
             }
+            else
+            {
+                // Disable any remaining open entrances
+                foreach (var connectableModule in connectableModules)
+                {
+                    connectableModule.ToggleEntrances(false);                
+                }
             
-            onGenerationSuccess.Invoke();
+                onGenerationSuccess.Invoke();
+            }
         }
         
         /// <summary>
@@ -293,8 +306,6 @@ namespace Code.Scripts.Dungeon.Behaviours
 
                 var moduleCategory = moduleElement.ModuleCategory;
                 if (moduleCategory.SpawnRequired == false) continue;
-
-                // TODO: Ensure enough room exists to meet all required module spawn constraints
                 if (moduleCategory.SpawnLimits)
                 {
                     var spawnCount = 0;
@@ -582,14 +593,14 @@ namespace Code.Scripts.Dungeon.Behaviours
         {
             public readonly ModuleAsset Asset;
             public readonly ModuleCategory Category;
-            public readonly DungeonLink Entrance;
+            public readonly DungeonPassage Entrance;
             public readonly GameObject Instance;
 
-            public HistoryEntry(ModuleAsset moduleAsset, ModuleCategory moduleCategory, DungeonLink dungeonLink, GameObject objectInstance)
+            public HistoryEntry(ModuleAsset moduleAsset, ModuleCategory moduleCategory, DungeonPassage dungeonPassage, GameObject objectInstance)
             {
                 Asset = moduleAsset;
                 Category = moduleCategory;
-                Entrance = dungeonLink;
+                Entrance = dungeonPassage;
                 Instance = objectInstance;
             }
         }

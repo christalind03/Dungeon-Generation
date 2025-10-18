@@ -108,16 +108,19 @@ namespace Code.Scripts.Attributes.Editor.Required
         /// <returns><c>true</c> if the object has a meaningful, non-default value; otherwise <c>false</c>.</returns>
         private static bool IsAssigned(object targetObject)
         {
-            if (targetObject == null) return false;
-            if (targetObject is Object unityObject) return !unityObject.Equals(null);
-            
-            return targetObject.GetType() switch
+            return targetObject switch
             {
-                var unknownType when unknownType == typeof(bool) => true,
-                var unknownType when unknownType == typeof(float) => !Mathf.Approximately((float)targetObject, float.Epsilon),
-                var unknownType when unknownType == typeof(int) => (int)targetObject != 0,
-                var unknownType when unknownType == typeof(string) => !string.IsNullOrEmpty((string)targetObject),
-                _ => false
+                null => false,
+                Object unityObject => !unityObject.Equals(null),
+                LayerMask layerMask => layerMask.value != 0,
+                _ => targetObject.GetType() switch
+                {
+                    var unknownType when unknownType == typeof(bool) => true,
+                    var unknownType when unknownType == typeof(float) => !Mathf.Approximately((float)targetObject, float.Epsilon),
+                    var unknownType when unknownType == typeof(int) => (int)targetObject != 0,
+                    var unknownType when unknownType == typeof(string) => !string.IsNullOrEmpty((string)targetObject),
+                    _ => false
+                }
             };
         }
     }

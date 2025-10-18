@@ -102,6 +102,7 @@ namespace Code.Scripts.Attributes.Editor.Required
                 SerializedPropertyType.Float => !Mathf.Approximately(serializedProperty.floatValue, float.Epsilon),
                 SerializedPropertyType.Integer => serializedProperty.intValue != 0,
                 SerializedPropertyType.ObjectReference => serializedProperty.objectReferenceValue,
+                SerializedPropertyType.LayerMask => serializedProperty.intValue != 0,
                 SerializedPropertyType.String => !string.IsNullOrEmpty(serializedProperty.stringValue),
                 _ => false
             };

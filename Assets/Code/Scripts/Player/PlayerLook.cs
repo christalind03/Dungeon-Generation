@@ -9,12 +9,14 @@ namespace Code.Scripts.Player
     public class PlayerLook : MonoBehaviour
     {
         [Header("Parameters")]
+        
         [Min(0.1f)]
         [SerializeField]
         [Tooltip("The sensitivity multiplier for controller/mouse input")]
         private float lookSensitivity = 1f;
 
         [Header("References")]
+        
         [SerializeField]
         [Tooltip("The reference for the input action used for capturing look input (e.g., mouse delta)")]
         private InputActionReference actionReference;

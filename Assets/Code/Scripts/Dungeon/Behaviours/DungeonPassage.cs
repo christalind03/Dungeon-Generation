@@ -8,7 +8,7 @@ namespace Code.Scripts.Dungeon.Behaviours
     /// Represents a single entrance/exit point within a <see cref="Behaviours.DungeonModule"/>.
     /// </summary>
     [Serializable]
-    public class DungeonLink
+    public class DungeonPassage
     {
         [Required]
         [SerializeField]

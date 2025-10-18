@@ -60,6 +60,17 @@ namespace Code.Scripts.Dungeon.Data.Editor
             
             spawnRequiredPropertyField.RegisterValueChangeCallback(changeEvent =>
             {
+                var spawnRequired = changeEvent.changedProperty.boolValue;
+                if (spawnRequired)
+                {
+                    var spawnRateProperty = serializedProperty.FindPropertyRelative("spawnRate");
+                    if (spawnRateProperty != null)
+                    {
+                        spawnRateProperty.floatValue = 0f;
+                        spawnRateProperty.serializedObject.ApplyModifiedProperties();
+                    }
+                }
+                
                 spawnRatePropertyField.style.display = changeEvent.changedProperty.boolValue ? DisplayStyle.None : DisplayStyle.Flex;
             });
 

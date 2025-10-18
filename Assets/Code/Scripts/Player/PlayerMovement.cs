@@ -10,6 +10,7 @@ namespace Code.Scripts.Player
     public class PlayerMovement : MonoBehaviour
     {
         [Header("Parameters")]
+        
         [SerializeField]
         [Tooltip("The downward force applied to simulate gravity")]
         private float gravityForce = -9.8f;
@@ -20,6 +21,7 @@ namespace Code.Scripts.Player
         private float movementSpeed = 15f;
         
         [Header("References")]
+        
         [SerializeField] 
         [Tooltip("The input action that provides movement input (e.g., WASD)")]
         private InputActionReference actionReference;

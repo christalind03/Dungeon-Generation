@@ -1,7 +1,6 @@
 using Code.Scripts.Attributes;
 using Code.Scripts.Utils;
 using System.Linq;
-using UnityEditor;
 using UnityEngine;
 
 namespace Code.Scripts.Dungeon.Data
@@ -58,15 +57,15 @@ namespace Code.Scripts.Dungeon.Data
         /// </summary>
         public void OnValidate()
         {
-            if (EditorApplication.isPlaying) return;
-            
             ScriptValidator.LogError(
                 this,
                 (maximumModules < minimumModules, $"<b>{nameof(maximumModules)}</b> must be greater than <b>{nameof(minimumModules)}</b>"),
                 (moduleData.Length <= 0, $"<b>{nameof(moduleData)}</b> must contain at least one element."),
-                (ContainsInvalidBounds(), $"All <b>{nameof(moduleData)}</b> entries contain spawn limits that exceed this theme's bounds."),
+                (ContainsInvalidLimits(), $"All <b>{nameof(moduleData)}</b> entries contain spawn limits that exceed this theme's bounds."),
                 (ContainsInvalidWeights(), $"All <b>{nameof(moduleData)}</b> entries' cumulative spawn rate should roughly equal 1."),
-                (ContainsUnassignedCategories(), $"All <b>{nameof(moduleData)}</b> entries must have a valid list of <b>{nameof(ModuleAsset)}.")
+                (ContainsImpossibleRequirements(), $"All <b>{nameof(moduleData)}</b> entries must have sufficient unique modules to satisfy their spawn requirements."),
+                (ContainsUnassignedCategories(), $"All <b>{nameof(moduleData)}</b> entries must have a valid list of <b>{nameof(ModuleAsset)}."),
+                (ValidateRequiredModules(), $"The minimum number of required modules must be between <b>{minimumModules}</b> and <b>{maximumModules}</b>.")
             );
         }
         
@@ -76,7 +75,7 @@ namespace Code.Scripts.Dungeon.Data
         /// <returns>
         /// <c>true</c> if all module categories have invalid spawn limits; otherwise, <c>false</c>.
         /// </returns>
-        private bool ContainsInvalidBounds()
+        private bool ContainsInvalidLimits()
         {
             foreach (var moduleElement in moduleData)
             {
@@ -114,6 +113,38 @@ namespace Code.Scripts.Dungeon.Data
         }
         
         /// <summary>
+        /// Determines whether any <see cref="ModuleCategory"/> in <see cref="moduleData"/> has spawn limits that make it impossible to satisfy.
+        /// </summary>
+        /// <remarks>
+        /// A <see cref="ModuleCategory"/> is considered to be impossible if:
+        /// <list type="bullet">
+        /// <item><description>The <see cref="ModuleCategory.SpawnLimits"/> flag is set.</description></item>
+        /// <item>
+        ///     <description>
+        ///         The number of unique <see cref="ModuleAsset"/> entries that can only spawn once is less than the <see cref="ModuleCategory"/>'s <see cref="ModuleCategory.SpawnMinimum"/> requirement.
+        ///     </description>
+        /// </item>
+        /// </list> 
+        /// </remarks>
+        /// <returns><c>true</c> if one or more <see cref="ModuleCategory"/> have unsatisfiable spawn requirements; otherwise <c>false</c>.</returns>
+        private bool ContainsImpossibleRequirements()
+        {
+            foreach (var moduleElement in moduleData)
+            {
+                var moduleAssets = moduleElement.ModuleAssets;
+                var moduleCategory = moduleElement.ModuleCategory;
+                var uniqueCount = moduleAssets.Count(moduleAsset => moduleAsset.SpawnOnce);
+
+                var allUnique = moduleAssets.Length == uniqueCount;
+                var spaceUnavailable = uniqueCount < moduleCategory.SpawnMinimum;
+                
+                if (allUnique && moduleCategory.SpawnLimits && spaceUnavailable) return true;
+            }
+
+            return false;
+        }
+        
+        /// <summary>
         /// Determines whether there are module categories that do not have a valid list of <see cref="ModuleAsset"/>.
         /// </summary>
         /// <returns>
@@ -122,6 +153,29 @@ namespace Code.Scripts.Dungeon.Data
         private bool ContainsUnassignedCategories()
         {
             return moduleData.Any(moduleElement => moduleElement.ModuleAssets.Length <= 0);
+        }
+        
+        /// <summary>
+        /// Determines whether the total number of required modules in <see cref="moduleData"/> is outside the range defined by <see cref="minimumModules"/> and <see cref="maximumModules"/>.
+        /// </summary>
+        /// <remarks>
+        /// When a <see cref="ModuleCategory"/> defines <see cref="ModuleCategory.SpawnLimits"/>, its <see cref="ModuleCategory.SpawnMinimum"/> value is used to calculate the total required count.
+        /// </remarks>
+        /// <returns><c>true</c> if the number of required modules is within the allowed range; otherwise, <c>false</c>.</returns>
+        private bool ValidateRequiredModules()
+        {
+            var minimumRequired = 0;
+
+            foreach (var moduleElement in moduleData)
+            {
+                var moduleCategory = moduleElement.ModuleCategory;
+                if (moduleCategory.SpawnRequired)
+                {
+                    minimumRequired += moduleCategory.SpawnLimits ? moduleCategory.SpawnMinimum : 1;
+                }
+            }
+            
+            return minimumModules < minimumRequired || maximumModules < minimumRequired;
         }
         
         #endif
