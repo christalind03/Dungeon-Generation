@@ -11,7 +11,7 @@ namespace Code.Scripts.Dungeon.Data
     /// This includes the theme's name, available module categories, and the individual models that can be spawned.
     /// </summary>
     [CreateAssetMenu(fileName = "Dungeon_Theme", menuName = "Dungeon Theme")]
-    public class Theme : ScriptableObject
+    public class DungeonTheme : ScriptableObject
     {
         [Required]
         [SerializeField]

@@ -8,15 +8,15 @@ using UnityEditor;
 namespace Code.Scripts.Dungeon.Data.Editor
 {
     /// <summary>
-    /// Provides automated validation for <see cref="Theme"/> assets when entering Play Mode in the Unity Editor.
+    /// Provides automated validation for <see cref="DungeonTheme"/> assets when entering Play Mode in the Unity Editor.
     /// </summary>
     [InitializeOnLoad]
-    public static class ThemeValidator
+    public static class DungeonThemeValidator
     {
         /// <summary>
         /// Registers the validation check to run when Play Mode is entered.
         /// </summary>
-        static ThemeValidator()
+        static DungeonThemeValidator()
         {
             EditorApplication.playModeStateChanged += playModeState =>
             {
@@ -27,7 +27,7 @@ namespace Code.Scripts.Dungeon.Data.Editor
         }
         
         /// <summary>
-        /// Iterates through all <see cref="Theme"/> assets in the project and validates their serialized fields for assignment and weight distribution.
+        /// Iterates through all <see cref="DungeonTheme"/> assets in the project and validates their serialized fields for assignment and weight distribution.
         /// </summary>
         /// <remarks>If any validation errors are detected, Play Mode is immediately terminated.</remarks>
         private static void CheckRequirements()
@@ -38,7 +38,7 @@ namespace Code.Scripts.Dungeon.Data.Editor
             foreach (var themeGUID in themeGUIDs)
             {
                 var assetPath = AssetDatabase.GUIDToAssetPath(themeGUID);
-                var assetTarget = AssetDatabase.LoadAssetAtPath<Theme>(assetPath);
+                var assetTarget = AssetDatabase.LoadAssetAtPath<DungeonTheme>(assetPath);
                 var fieldInfo = assetTarget.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
 
                 assetTarget.OnValidate();

@@ -2341,7 +2341,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8251110499077123098}
-  - component: {fileID: 6999733391740287320}
   m_Layer: 0
   m_Name: Entrance_A
   m_TagString: Untagged
@@ -2367,21 +2366,6 @@ Transform:
   - {fileID: 5487413877127011695}
   m_Father: {fileID: 1266120740816756011}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6999733391740287320
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4352665730519725705}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b938cc564244962bfd0dfb613e858a2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  entrancePoint: {fileID: 6395698958079684872}
-  openState: {fileID: 2769993013564406844}
-  closedState: {fileID: 5146740767452301269}
 --- !u!1 &4464022650129340350
 GameObject:
   m_ObjectHideFlags: 0
@@ -4194,8 +4178,12 @@ MonoBehaviour:
   moduleBounds:
   - {fileID: 4113653870555043057}
   moduleEntrances:
-  - {fileID: 6999733391740287320}
-  - {fileID: 8334320736115416567}
+  - entrancePoint: {fileID: 6395698958079684872}
+    openState: {fileID: 2769993013564406844}
+    closedState: {fileID: 5146740767452301269}
+  - entrancePoint: {fileID: 7943150287529940222}
+    openState: {fileID: 3476641347966905732}
+    closedState: {fileID: 8274899827179264372}
 --- !u!1 &6561078028639026132
 GameObject:
   m_ObjectHideFlags: 0
@@ -4637,7 +4625,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6226055462214428207}
-  - component: {fileID: 8334320736115416567}
   m_Layer: 0
   m_Name: Entrance_B
   m_TagString: Untagged
@@ -4663,21 +4650,6 @@ Transform:
   - {fileID: 8763311222415573966}
   m_Father: {fileID: 1266120740816756011}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8334320736115416567
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7063566331649617604}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b938cc564244962bfd0dfb613e858a2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  entrancePoint: {fileID: 7943150287529940222}
-  openState: {fileID: 3476641347966905732}
-  closedState: {fileID: 8274899827179264372}
 --- !u!1 &7280894233285925444
 GameObject:
   m_ObjectHideFlags: 0

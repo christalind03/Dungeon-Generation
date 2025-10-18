@@ -333,7 +333,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7101265170342362132}
-  - component: {fileID: 7529629023547517056}
   m_Layer: 0
   m_Name: Entrance_A
   m_TagString: Untagged
@@ -359,21 +358,6 @@ Transform:
   - {fileID: 7171112580297427886}
   m_Father: {fileID: 1271742563314708792}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7529629023547517056
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 361353481018546336}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b938cc564244962bfd0dfb613e858a2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  entrancePoint: {fileID: 316753590851093011}
-  openState: {fileID: 3682931610482991173}
-  closedState: {fileID: 7552316987687751956}
 --- !u!1 &429508911771091928
 GameObject:
   m_ObjectHideFlags: 0
@@ -3619,7 +3603,9 @@ MonoBehaviour:
   moduleBounds:
   - {fileID: 5184856902245000577}
   moduleEntrances:
-  - {fileID: 7529629023547517056}
+  - entrancePoint: {fileID: 316753590851093011}
+    openState: {fileID: 3682931610482991173}
+    closedState: {fileID: 7552316987687751956}
 --- !u!1 &5026592263836123407
 GameObject:
   m_ObjectHideFlags: 0
@@ -5885,7 +5871,9 @@ MonoBehaviour:
   moduleBounds:
   - {fileID: 5184856902245000577}
   moduleEntrances:
-  - {fileID: 7529629023547517056}
+  - entrancePoint: {fileID: 0}
+    openState: {fileID: 0}
+    closedState: {fileID: 0}
 --- !u!1 &7031166351523108701
 GameObject:
   m_ObjectHideFlags: 0

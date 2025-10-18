@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6388169598289691946}
-  - component: {fileID: 6025453483234190399}
   m_Layer: 0
   m_Name: Entrance_B
   m_TagString: Untagged
@@ -35,21 +34,6 @@ Transform:
   - {fileID: 4590869399664658455}
   m_Father: {fileID: 1863957654951548077}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6025453483234190399
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 110375527783718914}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b938cc564244962bfd0dfb613e858a2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  entrancePoint: {fileID: 7138857324403727304}
-  openState: {fileID: 5851737379237654496}
-  closedState: {fileID: 3818449719098167981}
 --- !u!1 &184979450909828664
 GameObject:
   m_ObjectHideFlags: 0
@@ -714,9 +698,15 @@ MonoBehaviour:
   moduleBounds:
   - {fileID: 8451193731797383446}
   moduleEntrances:
-  - {fileID: 4576289138043242905}
-  - {fileID: 6025453483234190399}
-  - {fileID: 3163560481479604388}
+  - entrancePoint: {fileID: 3044317445874743923}
+    openState: {fileID: 2801802908876042101}
+    closedState: {fileID: 5280627424377862183}
+  - entrancePoint: {fileID: 7138857324403727304}
+    openState: {fileID: 5851737379237654496}
+    closedState: {fileID: 3818449719098167981}
+  - entrancePoint: {fileID: 6777748797769193388}
+    openState: {fileID: 4038030370276607936}
+    closedState: {fileID: 4142621821326206765}
 --- !u!1 &921953948801965639
 GameObject:
   m_ObjectHideFlags: 0
@@ -5241,7 +5231,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8846589974388238604}
-  - component: {fileID: 4576289138043242905}
   m_Layer: 0
   m_Name: Entrance_A
   m_TagString: Untagged
@@ -5267,21 +5256,6 @@ Transform:
   - {fileID: 4756749013570167453}
   m_Father: {fileID: 1863957654951548077}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4576289138043242905
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5542689054096168084}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b938cc564244962bfd0dfb613e858a2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  entrancePoint: {fileID: 3044317445874743923}
-  openState: {fileID: 2801802908876042101}
-  closedState: {fileID: 5280627424377862183}
 --- !u!1 &5726145280312560671
 GameObject:
   m_ObjectHideFlags: 0
@@ -7572,7 +7546,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2686397052744068447}
-  - component: {fileID: 3163560481479604388}
   m_Layer: 0
   m_Name: Entrance_C
   m_TagString: Untagged
@@ -7598,21 +7571,6 @@ Transform:
   - {fileID: 3618180735629688215}
   m_Father: {fileID: 1863957654951548077}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3163560481479604388
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8800680888482062551}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b938cc564244962bfd0dfb613e858a2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  entrancePoint: {fileID: 6777748797769193388}
-  openState: {fileID: 4038030370276607936}
-  closedState: {fileID: 4142621821326206765}
 --- !u!1 &9193835492125715009
 GameObject:
   m_ObjectHideFlags: 0

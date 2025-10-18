@@ -1,12 +1,14 @@
 using Code.Scripts.Attributes;
+using System;
 using UnityEngine;
 
 namespace Code.Scripts.Dungeon.Behaviours
 {
     /// <summary>
-    /// Represents a single entrance/exit point within a <see cref="DungeonModule"/>.
+    /// Represents a single entrance/exit point within a <see cref="Behaviours.DungeonModule"/>.
     /// </summary>
-    public class DungeonModuleEntrance : MonoBehaviour
+    [Serializable]
+    public class DungeonLink
     {
         [Required]
         [SerializeField]
@@ -14,6 +16,7 @@ namespace Code.Scripts.Dungeon.Behaviours
         private Transform entrancePoint;
         
         [Header("Entrance Renderers")]
+        
         [Required]
         [SerializeField]
         [Tooltip("The GameObject activated when the entrance is open and connected to another module.")]
@@ -24,19 +27,23 @@ namespace Code.Scripts.Dungeon.Behaviours
         [Tooltip("The GameObject activated when the entrance is closed and unavailable for connection.")]
         private GameObject closedState;
 
+        public DungeonModule DungeonModule { get; private set; }
+        
         /// <summary>
         /// The world-space orientation and position of the entrance.
         /// </summary>
         public Transform EntrancePoint => entrancePoint;
-
+        
         /// <summary>
-        /// Initializes the entrance to its default state by enabling the open entrance visuals.
+        /// Assigns the <see cref="DungeonModule"/> that owns or contains this object.
+        /// This establishes a parent-child relationship between the module and its component.
         /// </summary>
-        private void Awake()
+        /// <param name="dungeonModule">The <see cref="DungeonModule"/> instance to associate as this object's parent.</param>
+        public void AssignModule(DungeonModule dungeonModule)
         {
-            EnableEntrance(true);
+            DungeonModule = dungeonModule;
         }
-
+        
         /// <summary>
         /// Enables or disables the entrance by toggling between the open and closed state renderers.
         /// </summary>

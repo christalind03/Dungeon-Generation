@@ -10,11 +10,11 @@ using UnityEngine.UIElements;
 namespace Code.Scripts.Dungeon.Data.Editor
 {
     /// <summary>
-    /// Custom inspector for <see cref="Theme"/>.
+    /// Custom inspector for <see cref="DungeonTheme"/>.
     /// Provides a UI Toolkit based editor to manage the theme name, module categories, and module data.
     /// </summary>
-    [CustomEditor(typeof(Theme))]
-    public class ThemeEditor : UnityEditor.Editor
+    [CustomEditor(typeof(DungeonTheme))]
+    public class DungeonThemeEditor : UnityEditor.Editor
     {
         /// <summary>
         /// Serialized property for the dungeon theme's display name.
@@ -37,7 +37,7 @@ namespace Code.Scripts.Dungeon.Data.Editor
         private SerializedProperty dataProperty;
         
         /// <summary>
-        /// Initializes references to <see cref="Theme"/> immediate serialized properties.
+        /// Initializes references to <see cref="DungeonTheme"/> immediate serialized properties.
         /// </summary>
         /// <remarks>
         /// Since these property paths are only used once, they do not need to be included in <see cref="PropertyPaths"/>.
@@ -51,7 +51,7 @@ namespace Code.Scripts.Dungeon.Data.Editor
         }
 
         /// <summary>
-        /// Creates and configures the custom inspector interface for the <see cref="Theme"/>.
+        /// Creates and configures the custom inspector interface for the <see cref="DungeonTheme"/>.
         /// </summary>
         /// <returns>A <see cref="VisualElement"/> containing the root of the custom inspector.</returns>
         public override VisualElement CreateInspectorGUI()

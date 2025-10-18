@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Code.Scripts.Dungeon.Data
 {
     /// <summary>
-    /// Represents a data entry for a single module configuration within a <see cref="Theme"/>.
+    /// Represents a data entry for a single module configuration within a <see cref="DungeonTheme"/>.
     /// Each entry associates a <see cref="ModuleCategory"/> with a collection of <see cref="ModuleAssets"/> instances.
     /// </summary>
     [Serializable]

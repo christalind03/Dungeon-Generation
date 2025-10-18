@@ -9,7 +9,7 @@ using UnityEngine;
 namespace Code.Scripts.Dungeon.Behaviours
 {
     /// <summary>
-    /// Procedurally constructs a dungeon layout at runtime using a selected <see cref="Theme"/>.
+    /// Procedurally constructs a dungeon layout at runtime using a selected <see cref="DungeonTheme"/>.
     /// This generator selects module categories and modules based on weighted probabilities and spawns them into the scene to create a randomized, replayable dungeon experience.
     /// </summary>
     public class DungeonGenerator : MonoBehaviour
@@ -19,16 +19,16 @@ namespace Code.Scripts.Dungeon.Behaviours
 
         [SerializeField]
         [Tooltip("References to the available dungeon theme assets used by this dungeon.")]
-        private Theme[] availableThemes;
+        private DungeonTheme[] availableThemes;
         
         [SerializeField]
         [Tooltip("Specifies which layers are considered when detecting overlaps with existing modules.")]
         private LayerMask placementLayers;
         
         /// <summary>
-        /// The currently selected <see cref="Theme"/> for generation.
+        /// The currently selected <see cref="DungeonTheme"/> for generation.
         /// </summary>
-        private Theme activeTheme;
+        private DungeonTheme activeDungeonTheme;
 
         /// <summary>
         /// Tracks the number of backtracking attempts made during generation.
@@ -96,7 +96,7 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// <summary>
         /// Generates a randomized dungeon by completing the following steps:
         /// <list type="bullet">
-        /// <item><description>Picking a random <see cref="Theme"/> from the available themes</description></item>
+        /// <item><description>Picking a random <see cref="DungeonTheme"/> from the available themes</description></item>
         /// <item><description>Setting up probability tables for the weighted category and module selection</description></item>
         /// <item><description>Spawning modules until the target count is reached, respecting required category constraints</description></item>
         /// </list>
@@ -185,7 +185,7 @@ namespace Code.Scripts.Dungeon.Behaviours
             // NOTE: This is for debugging purposes only...
             Debug.Log($"Spawned: {moduleCount}/{moduleLimit}, Backtracked: {backtrackAttempts}");
         }
-
+        
         /// <summary>
         /// Initializes all data structures, probability tables, and variables required to begin generation.
         /// </summary>
@@ -194,13 +194,13 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// </remarks>
         private void InitializeGeneration()
         {
-            activeTheme = availableThemes[UnityEngine.Random.Range(0, availableThemes.Length)];
+            activeDungeonTheme = availableThemes[UnityEngine.Random.Range(0, availableThemes.Length)];
 
             backtrackAttempts = 0;
             generationError = GenerationError.None;
 
             moduleCount = 0;
-            moduleLimit = UnityEngine.Random.Range(activeTheme.MinimumModules, activeTheme.MaximumModules + 1);
+            moduleLimit = UnityEngine.Random.Range(activeDungeonTheme.MinimumModules, activeDungeonTheme.MaximumModules + 1);
             moduleHistory = new Stack<HistoryEntry>();
             connectableModules = new List<DungeonModule>();
 
@@ -210,7 +210,7 @@ namespace Code.Scripts.Dungeon.Behaviours
 
             categorizedModules = new FrequencyDictionary<ModuleCategory>();
 
-            foreach (var moduleElement in activeTheme.ModuleData)
+            foreach (var moduleElement in activeDungeonTheme.ModuleData)
             {
                 categorizedModules[moduleElement.ModuleCategory] = 0;
             }
@@ -227,7 +227,7 @@ namespace Code.Scripts.Dungeon.Behaviours
             var categoryList = new List<ModuleCategory>();
             var weightsList = new List<float>();
 
-            foreach (var moduleElement in activeTheme.ModuleData)
+            foreach (var moduleElement in activeDungeonTheme.ModuleData)
             {
                 var moduleCategory = moduleElement.ModuleCategory;
                 var moduleWeight = moduleCategory.SpawnRate;
@@ -252,7 +252,7 @@ namespace Code.Scripts.Dungeon.Behaviours
             moduleProbabilities = new Dictionary<ModuleCategory, AliasProbability<ModuleAsset>>();
 
             // Create alias probability lookup tables for module entries in each module category
-            foreach (var moduleElement in activeTheme.ModuleData)
+            foreach (var moduleElement in activeDungeonTheme.ModuleData)
             {
                 moduleProbabilities[moduleElement.ModuleCategory] = new AliasProbability<ModuleAsset>(
                     moduleElement.ModuleAssets,
@@ -262,14 +262,14 @@ namespace Code.Scripts.Dungeon.Behaviours
         }
 
         /// <summary>
-        /// Populates the <see cref="requiredModules"/> and <see cref="uniqueModules"/> lists with modules that are marked as required for the current <see cref="activeTheme"/>.
+        /// Populates the <see cref="requiredModules"/> and <see cref="uniqueModules"/> lists with modules that are marked as required for the current <see cref="activeDungeonTheme"/>.
         /// </summary>
         private void InitializeRequiredModules()
         {
             requiredModules = new FrequencyDictionary<(ModuleAsset, ModuleCategory)>();
             uniqueModules = new List<ModuleAsset>();
 
-            foreach (var moduleElement in activeTheme.ModuleData)
+            foreach (var moduleElement in activeDungeonTheme.ModuleData)
             {
                 var openSlots = moduleLimit - requiredModules.Count;
                 if (openSlots <= 0)
@@ -403,18 +403,18 @@ namespace Code.Scripts.Dungeon.Behaviours
             var moduleInstance = Instantiate(moduleAsset.ModulePrefab, transform);
 
             var instantiatedModule = moduleInstance.GetComponent<DungeonModule>();
-            var instantiatedEntrance = instantiatedModule.SelectAvailableEntrance();
+            var instantiatedEntrance = instantiatedModule.SelectConnectableEntrance();
 
             if (connectableModules.Count <= 0)
             {
                 connectableModules.Add(instantiatedModule);
 
-                RecordModule(new HistoryEntry(moduleAsset, moduleCategory, null, null, moduleInstance), isRequired);
+                RecordModule(new HistoryEntry(moduleAsset, moduleCategory, null, moduleInstance), isRequired);
                 return true;
             }
 
             var connectedModule = connectableModules[UnityEngine.Random.Range(0, connectableModules.Count)];
-            var connectedEntrance = connectedModule.SelectAvailableEntrance();
+            var connectedEntrance = connectedModule.SelectConnectableEntrance();
 
             AlignModules(moduleInstance.transform, instantiatedEntrance.EntrancePoint, connectedEntrance.EntrancePoint);
 
@@ -424,13 +424,13 @@ namespace Code.Scripts.Dungeon.Behaviours
                 return false;
             }
 
-            instantiatedModule.RemoveAvailableEntrance(instantiatedEntrance);
-            connectedModule.RemoveAvailableEntrance(connectedEntrance);
+            instantiatedModule.RemoveConnectableEntrance(instantiatedEntrance);
+            connectedModule.RemoveConnectableEntrance(connectedEntrance);
 
             RefreshConnections(instantiatedModule);
             RefreshConnections(connectedModule);
 
-            RecordModule(new HistoryEntry(moduleAsset, moduleCategory, connectedModule, connectedEntrance, moduleInstance), isRequired);
+            RecordModule(new HistoryEntry(moduleAsset, moduleCategory, connectedEntrance, moduleInstance), isRequired);
             return true;
         }
 
@@ -479,7 +479,7 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// <param name="targetModule">The <see cref="DungeonModule"/> whose connection state is being updated.</param>
         private void RefreshConnections(DungeonModule targetModule)
         {
-            if (connectableModules.Contains(targetModule) == false && targetModule.HasAvailableEntrance())
+            if (connectableModules.Contains(targetModule) == false && targetModule.ContainsConnectableEntrance())
             {
                 connectableModules.Add(targetModule);
             }
@@ -532,14 +532,12 @@ namespace Code.Scripts.Dungeon.Behaviours
             moduleCount--;
             categorizedModules.Decrement(historyEntry.Category);
             
-            var dungeonModule = historyEntry.Module;
-            var dungeonModuleEntrance = historyEntry.ModuleEntrance;
-            
-            if (dungeonModule && dungeonModuleEntrance)
+            var dungeonLink = historyEntry.Entrance;
+            if (dungeonLink is not null)
             {
-                dungeonModule.AddAvailableEntrance(dungeonModuleEntrance);
+                dungeonLink.DungeonModule?.RegisterConnectableEntrance(dungeonLink);
             }
-
+            
             if (requiredModules.ContainsKey((historyEntry.Asset, historyEntry.Category)))
             {
                 requiredModules.Increment((historyEntry.Asset, historyEntry.Category));
@@ -571,22 +569,14 @@ namespace Code.Scripts.Dungeon.Behaviours
         {
             public readonly ModuleAsset Asset;
             public readonly ModuleCategory Category;
-            public readonly DungeonModule Module;
-            public readonly DungeonModuleEntrance ModuleEntrance;
+            public readonly DungeonLink Entrance;
             public readonly GameObject Instance;
 
-            public HistoryEntry(
-                ModuleAsset moduleAsset,
-                ModuleCategory moduleCategory,
-                DungeonModule connectedModule,
-                DungeonModuleEntrance connectedModuleEntrance,
-                GameObject objectInstance
-            )
+            public HistoryEntry(ModuleAsset moduleAsset, ModuleCategory moduleCategory, DungeonLink dungeonLink, GameObject objectInstance)
             {
                 Asset = moduleAsset;
                 Category = moduleCategory;
-                Module = connectedModule;
-                ModuleEntrance = connectedModuleEntrance;
+                Entrance = dungeonLink;
                 Instance = objectInstance;
             }
         }
