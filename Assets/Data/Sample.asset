@@ -45,7 +45,7 @@ MonoBehaviour:
       spawnOnce: 0
     moduleCategory:
       categoryTitle: Rooms
-      spawnLimits: 1
+      spawnLimits: 0
       spawnMaximum: 3
       spawnMinimum: 1
       spawnRequired: 0

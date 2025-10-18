@@ -1,7 +1,7 @@
 using Code.Scripts.Attributes;
 using Code.Scripts.Utils;
 using System.Collections.Generic;
-using UnityEditor;
+using System.Linq;
 using UnityEngine;
 
 namespace Code.Scripts.Dungeon.Behaviours
@@ -9,6 +9,7 @@ namespace Code.Scripts.Dungeon.Behaviours
     /// <summary>
     /// Represents a modular section of a dungeon.
     /// </summary>
+    [ExecuteInEditMode]
     public class DungeonModule : MonoBehaviour
     {
         [Required]
@@ -18,7 +19,13 @@ namespace Code.Scripts.Dungeon.Behaviours
         
         [SerializeField]
         [Tooltip("The entrances that can connect this module to other dungeon modules.")]
-        private List<DungeonPassage> moduleEntrances;
+        private DungeonPassage[] moduleEntrances;
+
+        /// <summary>
+        /// A runtime list of entrances on this <see cref="DungeonModule"/> that are currently available for connections to other modules.
+        /// These entrances are updated during dungeon generation.
+        /// </summary>
+        private List<DungeonPassage> connectableEntrances;
         
         /// <summary>
         /// Gets the collection of <see cref="Collider"/> components that define the physical bounds of this module.
@@ -31,12 +38,14 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// </summary>
         private void Awake()
         {
-            foreach (var moduleEntrance in moduleEntrances)
+            connectableEntrances = moduleEntrances.ToList();
+            
+            foreach (var connectableEntrance in connectableEntrances)
             {
-                moduleEntrance.AssignModule(this);
+                connectableEntrance.AssignModule(this);
             }
             
-            ToggleEntrances(true);
+            ToggleConnectableEntrances(true);
         }
         
         /// <summary>
@@ -45,7 +54,7 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// <returns><c>true</c> if one or more connectable entrances exist; otherwise, <c>false</c>.</returns>
         public bool ContainsConnectableEntrance()
         {
-            return 0 < moduleEntrances.Count;
+            return 0 < connectableEntrances.Count;
         }
         
         /// <summary>
@@ -54,7 +63,7 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// <param name="dungeonPassage">The <see cref="DungeonPassage"/> instance representing the entrance to be registered.</param>
         public void RegisterConnectableEntrance(DungeonPassage dungeonPassage)
         {
-            moduleEntrances.Add(dungeonPassage);
+            connectableEntrances.Add(dungeonPassage);
         }
         
         /// <summary>
@@ -64,7 +73,7 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// <param name="dungeonPassage">The <see cref="DungeonPassage"/> instance to be removed.</param>
         public void RemoveConnectableEntrance(DungeonPassage dungeonPassage)
         {
-            moduleEntrances.RemoveAll(availableEntrance => availableEntrance == dungeonPassage);
+            connectableEntrances.RemoveAll(availableEntrance => availableEntrance == dungeonPassage);
         }
         
         /// <summary>
@@ -75,20 +84,20 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// </returns>
         public DungeonPassage SelectConnectableEntrance()
         {
-            if (moduleEntrances.Count <= 0) return null;
+            if (connectableEntrances.Count <= 0) return null;
             
-            var entranceIndex = Random.Range(0, moduleEntrances.Count);
-            return moduleEntrances[entranceIndex];
+            var entranceIndex = Random.Range(0, connectableEntrances.Count);
+            return connectableEntrances[entranceIndex];
         }
         
         /// <summary>
-        /// Sets the current active state of all entrances belonging to this module.
+        /// Sets the current active state of all connectable entrances belonging to this module.
         /// When enabled, entrances are visually and functionally open for connection.
         /// When disabled, entrances are closed and unavailable for further connections.
         /// </summary>
-        public void ToggleEntrances(bool isOpen)
+        public void ToggleConnectableEntrances(bool isOpen)
         {
-            foreach (var connectableEntrance in moduleEntrances)
+            foreach (var connectableEntrance in connectableEntrances)
             {
                 connectableEntrance.EnableEntrance(isOpen);
             }
@@ -105,7 +114,7 @@ namespace Code.Scripts.Dungeon.Behaviours
             ScriptValidator.LogError(
                 this,
                 (moduleBounds.Length <= 0, $"<b>{nameof(moduleBounds)}</b> must contain at least one element."),
-                (moduleEntrances.Count <= 0, $"<b>{nameof(moduleEntrances)}</b> must contain at least one element.")
+                (moduleEntrances.Length <= 0, $"<b>{nameof(moduleEntrances)}</b> must contain at least one element.")
             );
         }
                 

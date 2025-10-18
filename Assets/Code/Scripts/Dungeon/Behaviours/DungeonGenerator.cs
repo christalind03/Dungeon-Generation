@@ -36,7 +36,12 @@ namespace Code.Scripts.Dungeon.Behaviours
         
         [SerializeField]
         [Tooltip("Called when generation has completed without error.")]
-        private UnityEvent onGenerationSuccess; 
+        private UnityEvent onGenerationSuccess;
+
+        [Button("Generate Dungeon", nameof(GenerateDungeon), new object[] { false })]
+        [Button("Destroy Dungeon", nameof(DestroyDungeon))]
+        [SerializeField]
+        private bool buttonRenderer;
         
         /// <summary>
         /// The currently selected <see cref="DungeonTheme"/> for generation.
@@ -97,13 +102,16 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// A collection of <see cref="ModuleAsset"/> instances that can only be spawned once.
         /// </summary>
         private List<ModuleAsset> uniqueModules;
-
+        
         /// <summary>
-        /// Automatically generates the dungeon when the object is loaded into the scene.
+        /// Immediately destroys all child <see cref="GameObject"/>s related to the current generation iteration.
         /// </summary>
-        private void Awake()
+        public void DestroyDungeon()
         {
-            Generate();
+            for (var itemIndex = transform.childCount - 1; 0 <= itemIndex; itemIndex--)
+            {
+                DestroyModule(transform.GetChild(itemIndex).gameObject);
+            }
         }
 
         /// <summary>
@@ -114,8 +122,11 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// <item><description>Spawning modules until the target count is reached, respecting required category constraints</description></item>
         /// </list>
         /// </summary>
-        public void Generate()
+        public void GenerateDungeon(bool triggerCallbacks = true)
         {
+            // Avoid generation if a dungeon is already present
+            if (0 < transform.childCount) return;
+            
             InitializeGeneration();
 
             while (generationError == GenerationError.None && moduleCount < moduleLimit)
@@ -177,6 +188,12 @@ namespace Code.Scripts.Dungeon.Behaviours
                 }
             }
 
+            // Disable any remaining open entrances
+            foreach (var connectableModule in connectableModules)
+            {
+                connectableModule.ToggleConnectableEntrances(false);                
+            }
+            
             #if UNITY_EDITOR
 
             if (generationError != GenerationError.None)
@@ -194,21 +211,18 @@ namespace Code.Scripts.Dungeon.Behaviours
             }
 
             #endif
-
-            var generationFailed = generationError != GenerationError.None || moduleCount < moduleLimit;
-            if (generationFailed)
-            {
-                onGenerationFailed.Invoke();
-            }
-            else
-            {
-                // Disable any remaining open entrances
-                foreach (var connectableModule in connectableModules)
-                {
-                    connectableModule.ToggleEntrances(false);                
-                }
             
-                onGenerationSuccess.Invoke();
+            if (triggerCallbacks)
+            {
+                var generationFailed = generationError != GenerationError.None || moduleCount < moduleLimit;
+                if (generationFailed)
+                {
+                    onGenerationFailed.Invoke();
+                }
+                else
+                {
+                    onGenerationSuccess.Invoke();
+                }
             }
         }
         
@@ -442,9 +456,9 @@ namespace Code.Scripts.Dungeon.Behaviours
 
             AlignModules(moduleInstance.transform, instantiatedEntrance.EntrancePoint, connectedEntrance.EntrancePoint);
 
-            if (ContainsIntersections(instantiatedModule.ModuleBounds))
+            if (ContainsIntersections(instantiatedModule))
             {
-                Destroy(moduleInstance);
+                DestroyModule(moduleInstance);
                 return false;
             }
 
@@ -475,18 +489,23 @@ namespace Code.Scripts.Dungeon.Behaviours
         }
 
         /// <summary>
-        /// Determines whether the provided module bounds intersect with any existing geometry.
+        /// Determines whether the provided <see cref="DungeonModule"/> intersect with any existing geometry.
         /// </summary>
-        /// <param name="targetBounds">The <see cref="Collider"/> bounds of the module being tested.</param>
+        /// <param name="targetModule">The <see cref="DungeonModule"/> whose colliders will be tested for intersections.</param>
         /// <returns>
-        /// <c>true</c> if the module's colliders overlap with any other colliders in the <see cref="placementLayers"/>; otherwise, <c>false</c>.
+        /// <c>true</c> if the <see cref="DungeonModule"/>'s colliders overlap with any other colliders in the <see cref="placementLayers"/>; otherwise, <c>false</c>.
         /// </returns>
-        private bool ContainsIntersections(Collider[] targetBounds)
+        private bool ContainsIntersections(DungeonModule targetModule)
         {
-            foreach (var moduleBounds in targetBounds)
+            foreach (var moduleBounds in targetModule.ModuleBounds)
             {
                 var hitContacts = Physics.OverlapBox(moduleBounds.bounds.center, moduleBounds.bounds.extents, Quaternion.identity, placementLayers);
-                if (hitContacts.Any(hitContact => hitContact.transform.root != moduleBounds.transform.root)) return false;
+                
+                foreach (var hitContact in hitContacts)
+                {
+                    var hitModule = hitContact.transform.GetComponentInParent<DungeonModule>();
+                    if (hitModule != targetModule) return true;
+                }
             }
 
             return false;
@@ -567,12 +586,31 @@ namespace Code.Scripts.Dungeon.Behaviours
                 requiredModules.Increment((historyEntry.Asset, historyEntry.Category));
             }
 
-            Destroy(historyEntry.Instance);
+            DestroyModule(historyEntry.Instance);
 
             backtrackAttempts++;
             return true;
         }
 
+        /// <summary>
+        /// Destroys the specified <see cref="UnityEngine.Object"/>.
+        /// </summary>
+        /// <param name="targetObject">The <see cref="UnityEngine.Object"/> to be destroyed.</param>
+        private static void DestroyModule(UnityEngine.Object targetObject)
+        {
+            #if UNITY_EDITOR
+            
+            if (Application.isPlaying == false)
+            {
+                DestroyImmediate(targetObject);
+                return;
+            }
+            
+            #endif
+            
+            Destroy(targetObject);
+        }
+        
         /// <summary>
         /// Represents the possible errors that can occur during dungeon generation.
         /// </summary>

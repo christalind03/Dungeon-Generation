@@ -21,13 +21,13 @@ namespace Code.Scripts.Dungeon.Data
         [Tooltip("If enabled, the number of modules that may spawn from this category is limited to a random value between spawnMin and spawnMax")]
         private bool spawnLimits;
         
-        [Required(normalizeLayout: true, requireIf: "spawnLimit")]
+        [Required(normalizeLayout: true, requireIf: nameof(spawnLimits))]
         [Min(0)]
         [SerializeField]
         [Tooltip("The maximum number of modules that may spawn from this category")]
         private int spawnMaximum;
 
-        [Required(normalizeLayout: true, requireIf: "spawnLimits")]
+        [Required(normalizeLayout: true, requireIf: nameof(spawnLimits))]
         [Min(0)]
         [SerializeField]
         [Tooltip("The minimum number of modules that may spawn from this category")]
@@ -38,7 +38,7 @@ namespace Code.Scripts.Dungeon.Data
         [Tooltip("If enabled, at least one module from this category is guaranteed to spawn (nullifies <c>spawnRate</c>)")]
         private bool spawnRequired;
         
-        [Required(normalizeLayout: true, requireIf: "!spawnRequired")]
+        [Required(normalizeLayout: true, requireIf: "!" + nameof(spawnRequired))]
         [Range(0, 1)]
         [SerializeField]
         [Tooltip("The relative probability of this category being chosen during dungeon generation")]

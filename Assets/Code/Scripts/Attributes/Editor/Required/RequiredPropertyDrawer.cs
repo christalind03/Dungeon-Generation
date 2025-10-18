@@ -9,7 +9,7 @@ using UnityEngine.UIElements;
 namespace Code.Scripts.Attributes.Editor.Required
 {
     /// <summary>
-    /// Custom property drawer for the <see cref="Required"/> attribute.
+    /// A custom property drawer for the <see cref="Required"/> attribute.
     /// </summary>
     /// <remarks>
     /// Based on an implementation by <see href="https://www.youtube.com/watch?v=OidPCs1YECo">git-amend on YouTube</see>.
