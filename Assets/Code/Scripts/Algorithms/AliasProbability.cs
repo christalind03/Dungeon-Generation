@@ -13,8 +13,19 @@ namespace Code.Scripts.Algorithms
     /// </remarks>
     public class AliasProbability<TObject>
     {
+        /// <summary>
+        /// Stores the alias indices used to resolve outcomes when probabilities exceed uniform distribution thresholds.
+        /// </summary>
         private readonly int[] aliasTable;
+        
+        /// <summary>
+        /// Stores the normalized probability weights for each entry in the selection pool.
+        /// </summary>
         private readonly float[] probabilityTable;
+        
+        /// <summary>
+        /// The set of selectable items used for weighted random sampling.
+        /// </summary>
         private readonly TObject[] selectionPool;
 
         /// <summary>

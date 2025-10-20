@@ -28,8 +28,23 @@ namespace Code.Scripts.Attributes.Editor.Button
             {
                 text = buttonAttribute.Label
             };
-            
-            rootElement.clicked += () => targetMethod.Invoke(targetObject, buttonAttribute.CallbackParams);
+
+            rootElement.clicked += () =>
+            {
+                rootElement.SetEnabled(false);
+
+                EditorApplication.delayCall += () =>
+                {
+                    try
+                    {
+                        targetMethod.Invoke(targetObject, buttonAttribute.CallbackParams);
+                    }
+                    finally
+                    {
+                        rootElement.SetEnabled(true);
+                    }
+                };
+            };
             
             return rootElement;
         }

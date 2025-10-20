@@ -174,8 +174,14 @@ namespace Code.Scripts.Dungeon.Data
                     minimumRequired += moduleCategory.SpawnLimits ? moduleCategory.SpawnMinimum : 1;
                 }
             }
+
+            // Additionally check for whether the minimum number of modules is less than the maximum to prevent incorrect error messages.
+            if (minimumRequired < minimumModules)
+            {
+                return minimumRequired < minimumModules || maximumModules < minimumRequired;
+            }
             
-            return minimumModules < minimumRequired || maximumModules < minimumRequired;
+            return false;
         }
         
         #endif

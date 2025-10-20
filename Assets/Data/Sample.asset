@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Sample
   m_EditorClassIdentifier: 
   themeTitle: Sample
-  maximumModules: 15
-  minimumModules: 5
+  maximumModules: 500
+  minimumModules: 1
   moduleData:
   - moduleAssets:
     - modulePrefab: {fileID: 4292134459100478249, guid: 055d01ca91ad9da43806dfd5558402b9, type: 3}
@@ -32,7 +32,7 @@ MonoBehaviour:
       spawnMaximum: 0
       spawnMinimum: 0
       spawnRequired: 0
-      spawnRate: 0.75
+      spawnRate: 0.625
   - moduleAssets:
     - modulePrefab: {fileID: 6437792012686716771, guid: 2c9b40bebca875b43a52fe01f02ec9ed, type: 3}
       spawnRate: 0.33
@@ -46,10 +46,10 @@ MonoBehaviour:
     moduleCategory:
       categoryTitle: Rooms
       spawnLimits: 0
-      spawnMaximum: 3
-      spawnMinimum: 1
+      spawnMaximum: 5
+      spawnMinimum: 3
       spawnRequired: 0
-      spawnRate: 0.25
+      spawnRate: 0.15
   - moduleAssets:
     - modulePrefab: {fileID: 8069236824017554570, guid: b10875bb0accd5c4aa2274bca15a2630, type: 3}
       spawnRate: 1
@@ -64,11 +64,11 @@ MonoBehaviour:
   - moduleAssets:
     - modulePrefab: {fileID: 898026347517242092, guid: 72cb34f583dc12544b4283cb928191ed, type: 3}
       spawnRate: 1
-      spawnOnce: 1
+      spawnOnce: 0
     moduleCategory:
       categoryTitle: Stairwell
       spawnLimits: 0
       spawnMaximum: 0
       spawnMinimum: 0
-      spawnRequired: 1
-      spawnRate: 0
+      spawnRequired: 0
+      spawnRate: 0.225

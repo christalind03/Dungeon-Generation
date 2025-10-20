@@ -31,7 +31,7 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// Gets the collection of <see cref="Collider"/> components that define the physical bounds of this module.
         /// </summary>
         public Collider[] ModuleBounds => moduleBounds;
-        
+
         /// <summary>
         /// Initializes this module's collection of connectable entrances at runtime.
         /// Each entrance is assigned a reference to its parent <see cref="DungeonModule"/> and activated in its open state to indicate availability for connection.

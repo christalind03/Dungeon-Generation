@@ -27,6 +27,9 @@ namespace Code.Scripts.Dungeon.Behaviours
         [Tooltip("The GameObject activated when the entrance is closed and unavailable for connection.")]
         private GameObject closedState;
 
+        /// <summary>
+        /// The <see cref="DungeonModule"/> in which this entrance is associated with.
+        /// </summary>
         public DungeonModule DungeonModule { get; private set; }
         
         /// <summary>

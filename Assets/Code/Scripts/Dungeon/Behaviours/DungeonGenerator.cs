@@ -5,6 +5,7 @@ using Code.Scripts.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -16,7 +17,7 @@ namespace Code.Scripts.Dungeon.Behaviours
     /// </summary>
     public class DungeonGenerator : MonoBehaviour
     {
-        private const int BacktrackLimit = 100;
+        private const int PlacementLimit = 25;
         private const float RequiredChance = 0.5f;
 
         [SerializeField]
@@ -38,6 +39,20 @@ namespace Code.Scripts.Dungeon.Behaviours
         [Tooltip("Called when generation has completed without error.")]
         private UnityEvent onGenerationSuccess;
 
+        [Header("Settings")]
+        
+        [Required]
+        [SerializeField]
+        [Tooltip("Controls how sharply the backtrack limit increases with overall size.")]
+        private float growthExponent = 0.75f;
+        
+        [Required]
+        [SerializeField]
+        [Tooltip("The size threshold where exponential backtrack scaling beings to accelerate.")]
+        private int scalingPivot = 50;
+        
+        [Header("Editor Utilities")]
+        
         [Button("Generate Dungeon", nameof(GenerateDungeon), new object[] { false })]
         [Button("Destroy Dungeon", nameof(DestroyDungeon))]
         [SerializeField]
@@ -46,17 +61,7 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// <summary>
         /// The currently selected <see cref="DungeonTheme"/> for generation.
         /// </summary>
-        private DungeonTheme activeDungeonTheme;
-
-        /// <summary>
-        /// Tracks the number of backtracking attempts made during generation.
-        /// </summary>
-        private int backtrackAttempts;
-        
-        /// <summary>
-        /// Represents the error encountered during the generation process.
-        /// </summary>
-        private GenerationError generationError;
+        private DungeonTheme activeTheme;
         
         /// <summary>
         /// The current number of successfully instantiated modules.
@@ -72,12 +77,12 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// A stack storing the historical sequence of module placements during generation.
         /// </summary>
         private Stack<HistoryEntry> moduleHistory;
-        
+
         /// <summary>
         /// A collection of currently active <see cref="DungeonModule"/> that contain at least one open connection point.
         /// </summary>
         private List<DungeonModule> connectableModules;
-
+        
         /// <summary>
         /// The alias probability table for sampling <see cref="ModuleCategory"/> values in constant time.
         /// </summary>
@@ -104,6 +109,21 @@ namespace Code.Scripts.Dungeon.Behaviours
         private List<ModuleAsset> uniqueModules;
         
         /// <summary>
+        /// Tracks the number of backtracking attempts made during generation.
+        /// </summary>
+        private int backtrackAttempts;
+
+        /// <summary>
+        /// Defines the maximum number of backtracking attempts permitted during generation.
+        /// </summary>
+        private int backtrackLimit;
+        
+        /// <summary>
+        /// Represents the error encountered during the generation process.
+        /// </summary>
+        private GenerationError generationError;
+        
+        /// <summary>
         /// Immediately destroys all child <see cref="GameObject"/>s related to the current generation iteration.
         /// </summary>
         public void DestroyDungeon()
@@ -124,9 +144,8 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// </summary>
         public void GenerateDungeon(bool triggerCallbacks = true)
         {
-            // Avoid generation if a dungeon is already present
-            if (0 < transform.childCount) return;
-            
+            // Clear the current generation iteration (if any) and reset the parameters used by the generator
+            DestroyDungeon();
             InitializeGeneration();
 
             while (generationError == GenerationError.None && moduleCount < moduleLimit)
@@ -178,8 +197,10 @@ namespace Code.Scripts.Dungeon.Behaviours
 
                     while (generationError == GenerationError.None && categoryCount < categoryLimit)
                     {
-                        if (!InstantiateWeightedModule(chosenCategory)) continue;
-                        categoryCount++;
+                        if (InstantiateWeightedModule(chosenCategory))
+                        {
+                            categoryCount++;
+                        }
                     }
                 }
                 else
@@ -206,8 +227,12 @@ namespace Code.Scripts.Dungeon.Behaviours
                     GenerationError.InvalidBacktracking => "Backtracking limit exceeded.",
                     _ => "Unknown Error"
                 };
-
-                Debug.LogError($"<b>[{name}]</b> Generation Failed: {errorMessage}");
+                
+                Debug.LogError($"[{name}] Generation Failed: {errorMessage}");
+            }
+            else
+            {
+                Debug.Log($"<color=green>[{name}] Dungeon Generation Complete: {moduleLimit}</color>");
             }
 
             #endif
@@ -234,28 +259,30 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// </remarks>
         private void InitializeGeneration()
         {
-            activeDungeonTheme = availableThemes[UnityEngine.Random.Range(0, availableThemes.Length)];
-
-            backtrackAttempts = 0;
-            generationError = GenerationError.None;
-
+            activeTheme = availableThemes[UnityEngine.Random.Range(0, availableThemes.Length)];
+            
             moduleCount = 0;
-            moduleLimit = UnityEngine.Random.Range(activeDungeonTheme.MinimumModules, activeDungeonTheme.MaximumModules + 1);
+            moduleLimit = UnityEngine.Random.Range(activeTheme.MinimumModules, activeTheme.MaximumModules + 1);
             moduleHistory = new Stack<HistoryEntry>();
             connectableModules = new List<DungeonModule>();
-
+            
             // Create alias probability lookup tables for drawing random values in O(1) time
             InitializeCategoryProbabilities();
             InitializeCategorizedModuleProbabilities();
 
             categorizedModules = new FrequencyDictionary<ModuleCategory>();
 
-            foreach (var moduleElement in activeDungeonTheme.ModuleData)
+            foreach (var moduleElement in activeTheme.ModuleData)
             {
                 categorizedModules[moduleElement.ModuleCategory] = 0;
             }
 
             InitializeRequiredModules();
+            
+            // Reset backtracking counters and limits before starting generation
+            backtrackAttempts = 0;
+            backtrackLimit = Mathf.RoundToInt(moduleLimit * (1 + Mathf.Pow(moduleLimit / scalingPivot, growthExponent)));
+            generationError = GenerationError.None;
         }
 
         /// <summary>
@@ -267,7 +294,7 @@ namespace Code.Scripts.Dungeon.Behaviours
             var categoryList = new List<ModuleCategory>();
             var weightsList = new List<float>();
 
-            foreach (var moduleElement in activeDungeonTheme.ModuleData)
+            foreach (var moduleElement in activeTheme.ModuleData)
             {
                 var moduleCategory = moduleElement.ModuleCategory;
                 var moduleWeight = moduleCategory.SpawnRate;
@@ -292,7 +319,7 @@ namespace Code.Scripts.Dungeon.Behaviours
             moduleProbabilities = new Dictionary<ModuleCategory, AliasProbability<ModuleAsset>>();
 
             // Create alias probability lookup tables for module entries in each module category
-            foreach (var moduleElement in activeDungeonTheme.ModuleData)
+            foreach (var moduleElement in activeTheme.ModuleData)
             {
                 moduleProbabilities[moduleElement.ModuleCategory] = new AliasProbability<ModuleAsset>(
                     moduleElement.ModuleAssets,
@@ -302,14 +329,14 @@ namespace Code.Scripts.Dungeon.Behaviours
         }
 
         /// <summary>
-        /// Populates the <see cref="requiredModules"/> and <see cref="uniqueModules"/> lists with modules that are marked as required for the current <see cref="activeDungeonTheme"/>.
+        /// Populates the <see cref="requiredModules"/> and <see cref="uniqueModules"/> lists with modules that are marked as required for the current <see cref="activeTheme"/>.
         /// </summary>
         private void InitializeRequiredModules()
         {
             requiredModules = new FrequencyDictionary<(ModuleAsset, ModuleCategory)>();
             uniqueModules = new List<ModuleAsset>();
 
-            foreach (var moduleElement in activeDungeonTheme.ModuleData)
+            foreach (var moduleElement in activeTheme.ModuleData)
             {
                 var openSlots = moduleLimit - requiredModules.Count;
                 if (openSlots <= 0)
@@ -368,10 +395,10 @@ namespace Code.Scripts.Dungeon.Behaviours
         {
             var requiredModule = SampleRequiredModule();
             if (requiredModule is null) return false;
-
+        
             var (moduleAsset, moduleCategory) = requiredModule.Value;
-
-            return TryInstantiatingModule(moduleAsset, moduleCategory, true);
+            
+            return TryPlacingModule(moduleAsset, moduleCategory, true);
         }
 
         /// <summary>
@@ -384,9 +411,9 @@ namespace Code.Scripts.Dungeon.Behaviours
         private bool InstantiateWeightedModule(ModuleCategory moduleCategory)
         {
             var moduleAsset = SampleWeightedModule(moduleCategory);
-            if (moduleAsset == null) return false;
+            if (moduleAsset is null) return false;
 
-            return TryInstantiatingModule(moduleAsset, moduleCategory, false);
+            return TryPlacingModule(moduleAsset, moduleCategory, false);
         }
 
         /// <summary>
@@ -423,6 +450,26 @@ namespace Code.Scripts.Dungeon.Behaviours
         }
 
         /// <summary>
+        /// Attempts to place the specified <see cref="ModuleAsset"/> within a limited number of attempts.
+        /// </summary>
+        /// <param name="moduleAsset">The <see cref="ModuleAsset"/> to place.</param>
+        /// <param name="moduleCategory">The <see cref="ModuleCategory"/> associated with the module.</param>
+        /// <param name="isRequired">Indicates whether the module is part of the required set.</param>
+        /// <returns><c>true</c> if the module was successfully instantiated and placed; otherwise, <c>false</c>.</returns>
+        private bool TryPlacingModule(ModuleAsset moduleAsset, ModuleCategory moduleCategory, bool isRequired)
+        {
+            var placementAttempts = 0;
+            while (placementAttempts < PlacementLimit)
+            {
+                if (TryInstantiatingModule(moduleAsset, moduleCategory, isRequired)) return true;
+                placementAttempts++;
+            }
+            
+            if (moduleHistory.Count <= 0) return false;
+            return TryBacktracking();
+        }
+        
+        /// <summary>
         /// Attempts to instantiate and position a module in the current dungeon layout.
         /// </summary>
         /// <param name="moduleAsset">The <see cref="ModuleAsset"/> to instantiate.</param>
@@ -446,7 +493,7 @@ namespace Code.Scripts.Dungeon.Behaviours
             if (connectableModules.Count <= 0)
             {
                 connectableModules.Add(instantiatedModule);
-
+            
                 RecordModule(new HistoryEntry(moduleAsset, moduleCategory, null, moduleInstance), isRequired);
                 return true;
             }
@@ -464,7 +511,7 @@ namespace Code.Scripts.Dungeon.Behaviours
 
             instantiatedModule.RemoveConnectableEntrance(instantiatedEntrance);
             connectedModule.RemoveConnectableEntrance(connectedEntrance);
-
+            
             RefreshConnections(instantiatedModule);
             RefreshConnections(connectedModule);
 
@@ -560,7 +607,7 @@ namespace Code.Scripts.Dungeon.Behaviours
                 return false;
             }
 
-            if (BacktrackLimit <= backtrackAttempts)
+            if (backtrackLimit <= backtrackAttempts)
             {
                 generationError = GenerationError.InvalidBacktracking;
                 return false;
@@ -585,7 +632,7 @@ namespace Code.Scripts.Dungeon.Behaviours
             {
                 requiredModules.Increment((historyEntry.Asset, historyEntry.Category));
             }
-
+            
             DestroyModule(historyEntry.Instance);
 
             backtrackAttempts++;
@@ -596,8 +643,17 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// Destroys the specified <see cref="UnityEngine.Object"/>.
         /// </summary>
         /// <param name="targetObject">The <see cref="UnityEngine.Object"/> to be destroyed.</param>
-        private static void DestroyModule(UnityEngine.Object targetObject)
+        private void DestroyModule(UnityEngine.Object targetObject)
         {
+            if (targetObject is GameObject gameObject)
+            {
+                var moduleComponent = gameObject.GetComponent<DungeonModule>();
+                if (moduleComponent is not null)
+                {
+                    connectableModules?.Remove(moduleComponent);
+                }
+            }
+            
             #if UNITY_EDITOR
             
             if (Application.isPlaying == false)
