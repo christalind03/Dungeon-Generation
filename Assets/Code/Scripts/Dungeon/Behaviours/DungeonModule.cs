@@ -25,8 +25,8 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// A runtime list of entrances on this <see cref="DungeonModule"/> that are currently available for connections to other modules.
         /// These entrances are updated during dungeon generation.
         /// </summary>
-        private List<DungeonPassage> connectableEntrances;
-        
+        public List<DungeonPassage> ConnectableEntrances { get; private set; }
+
         /// <summary>
         /// Gets the collection of <see cref="Collider"/> components that define the physical bounds of this module.
         /// </summary>
@@ -38,9 +38,9 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// </summary>
         private void Awake()
         {
-            connectableEntrances = moduleEntrances.ToList();
+            ConnectableEntrances = moduleEntrances.ToList();
             
-            foreach (var connectableEntrance in connectableEntrances)
+            foreach (var connectableEntrance in ConnectableEntrances)
             {
                 connectableEntrance.AssignModule(this);
             }
@@ -49,21 +49,12 @@ namespace Code.Scripts.Dungeon.Behaviours
         }
         
         /// <summary>
-        /// Determines whether this module currently has any connectable entrances available.
-        /// </summary>
-        /// <returns><c>true</c> if one or more connectable entrances exist; otherwise, <c>false</c>.</returns>
-        public bool ContainsConnectableEntrance()
-        {
-            return 0 < connectableEntrances.Count;
-        }
-        
-        /// <summary>
         /// Registers a new connectable entrance to this module's list of connectable entrances.
         /// </summary>
         /// <param name="dungeonPassage">The <see cref="DungeonPassage"/> instance representing the entrance to be registered.</param>
         public void RegisterConnectableEntrance(DungeonPassage dungeonPassage)
         {
-            connectableEntrances.Add(dungeonPassage);
+            ConnectableEntrances.Add(dungeonPassage);
         }
         
         /// <summary>
@@ -73,7 +64,7 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// <param name="dungeonPassage">The <see cref="DungeonPassage"/> instance to be removed.</param>
         public void RemoveConnectableEntrance(DungeonPassage dungeonPassage)
         {
-            connectableEntrances.RemoveAll(availableEntrance => availableEntrance == dungeonPassage);
+            ConnectableEntrances.RemoveAll(availableEntrance => availableEntrance == dungeonPassage);
         }
         
         /// <summary>
@@ -84,10 +75,10 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// </returns>
         public DungeonPassage SelectConnectableEntrance()
         {
-            if (connectableEntrances.Count <= 0) return null;
+            if (ConnectableEntrances.Count <= 0) return null;
             
-            var entranceIndex = Random.Range(0, connectableEntrances.Count);
-            return connectableEntrances[entranceIndex];
+            var entranceIndex = Random.Range(0, ConnectableEntrances.Count);
+            return ConnectableEntrances[entranceIndex];
         }
         
         /// <summary>
@@ -97,7 +88,7 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// </summary>
         public void ToggleConnectableEntrances(bool isOpen)
         {
-            foreach (var connectableEntrance in connectableEntrances)
+            foreach (var connectableEntrance in ConnectableEntrances)
             {
                 connectableEntrance.EnableEntrance(isOpen);
             }

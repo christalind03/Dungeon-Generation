@@ -1,5 +1,7 @@
 #if UNITY_EDITOR
 
+using System.Collections;
+using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -96,7 +98,7 @@ namespace Code.Scripts.Attributes.Editor.Required
                 var infoValue = currentInfo.GetValue(targetObject);
                 if (IsAssigned(infoValue)) continue;
                 
-                Debug.LogError($"<b>[{unityObject.GetType().Name}]</b> <b>{currentInfo.Name}</b> on <b>{unityObject.name}</b> is not assigned.", unityObject);
+                Debug.LogError($"[{unityObject.GetType().Name}] <b>{currentInfo.Name}</b> on <b>{unityObject.name}</b> is not assigned.", unityObject);
                 hasErrors = true;
             }
         }
@@ -112,7 +114,8 @@ namespace Code.Scripts.Attributes.Editor.Required
             {
                 null => false,
                 Object unityObject => !unityObject.Equals(null),
-                LayerMask layerMask => layerMask.value != 0,
+                LayerMask layerObject => layerObject.value != 0,
+                IEnumerable enumerableObject => enumerableObject.Cast<object>().Any(),
                 _ => targetObject.GetType() switch
                 {
                     var unknownType when unknownType == typeof(bool) => true,

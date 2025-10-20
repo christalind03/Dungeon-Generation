@@ -13,18 +13,18 @@ MonoBehaviour:
   m_Name: Sample
   m_EditorClassIdentifier: 
   themeTitle: Sample
-  maximumModules: 500
+  maximumModules: 150
   minimumModules: 1
   moduleData:
   - moduleAssets:
     - modulePrefab: {fileID: 4292134459100478249, guid: 055d01ca91ad9da43806dfd5558402b9, type: 3}
-      spawnRate: 0.33
+      spawnRate: 0.25
       spawnOnce: 0
     - modulePrefab: {fileID: 8596345687976222852, guid: cfc8e5bdc3f7c264e8ef75dde4ac4d63, type: 3}
-      spawnRate: 0.33
+      spawnRate: 0.5
       spawnOnce: 0
     - modulePrefab: {fileID: 1346761115139246579, guid: d0b14030ea9a9cd409040e8e40a98e11, type: 3}
-      spawnRate: 0.33
+      spawnRate: 0.25
       spawnOnce: 0
     moduleCategory:
       categoryTitle: Hallways
@@ -64,7 +64,7 @@ MonoBehaviour:
   - moduleAssets:
     - modulePrefab: {fileID: 898026347517242092, guid: 72cb34f583dc12544b4283cb928191ed, type: 3}
       spawnRate: 1
-      spawnOnce: 0
+      spawnOnce: 1
     moduleCategory:
       categoryTitle: Stairwell
       spawnLimits: 0

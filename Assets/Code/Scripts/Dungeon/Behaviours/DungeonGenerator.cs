@@ -17,6 +17,7 @@ namespace Code.Scripts.Dungeon.Behaviours
     /// </summary>
     public class DungeonGenerator : MonoBehaviour
     {
+        private const float AlignmentThreshold = -0.999f;
         private const int PlacementLimit = 25;
         private const float RequiredChance = 0.5f;
 
@@ -28,7 +29,7 @@ namespace Code.Scripts.Dungeon.Behaviours
         [SerializeField]
         [Tooltip("Specifies which layers are considered when detecting overlaps with existing modules.")]
         private LayerMask placementLayers;
-
+        
         [Header("Generation Callbacks")]
         
         [SerializeField]
@@ -38,18 +39,12 @@ namespace Code.Scripts.Dungeon.Behaviours
         [SerializeField]
         [Tooltip("Called when generation has completed without error.")]
         private UnityEvent onGenerationSuccess;
-
-        [Header("Settings")]
         
-        [Required]
-        [SerializeField]
-        [Tooltip("Controls how sharply the backtrack limit increases with overall size.")]
-        private float growthExponent = 0.75f;
+        [Header("Generation Settings")]
         
-        [Required]
         [SerializeField]
-        [Tooltip("The size threshold where exponential backtrack scaling beings to accelerate.")]
-        private int scalingPivot = 50;
+        [Tooltip("Determines whether the generator permits cyclic connections between modules.")]
+        private bool enableLoops;
         
         [Header("Editor Utilities")]
         
@@ -232,7 +227,7 @@ namespace Code.Scripts.Dungeon.Behaviours
             }
             else
             {
-                Debug.Log($"<color=green>[{name}] Dungeon Generation Complete: {moduleLimit}</color>");
+                Debug.Log($"<color=green>[{name}] <b>Dungeon Generation Complete: {moduleLimit}</b></color>");
             }
 
             #endif
@@ -281,7 +276,7 @@ namespace Code.Scripts.Dungeon.Behaviours
             
             // Reset backtracking counters and limits before starting generation
             backtrackAttempts = 0;
-            backtrackLimit = Mathf.RoundToInt(moduleLimit * (1 + Mathf.Pow(moduleLimit / scalingPivot, growthExponent)));
+            backtrackLimit = moduleLimit * PlacementLimit;
             generationError = GenerationError.None;
         }
 
@@ -511,6 +506,11 @@ namespace Code.Scripts.Dungeon.Behaviours
 
             instantiatedModule.RemoveConnectableEntrance(instantiatedEntrance);
             connectedModule.RemoveConnectableEntrance(connectedEntrance);
+
+            if (enableLoops)
+            {
+                ResolveSecondaryConnections(instantiatedModule);
+            }
             
             RefreshConnections(instantiatedModule);
             RefreshConnections(connectedModule);
@@ -559,12 +559,63 @@ namespace Code.Scripts.Dungeon.Behaviours
         }
 
         /// <summary>
-        /// Updates the connection list to include or exclude a <see cref="DungeonModule"/> based on its available entrances.
+        /// Iterates through the given <see cref="DungeonModule"/>'s available entrances and resolves secondary connections to other modules where possible.
+        /// </summary>
+        /// <param name="targetModule">
+        /// The <see cref="DungeonModule"/> whose entrances should be evaluated for secondary connections.
+        /// </param>
+        private void ResolveSecondaryConnections(DungeonModule targetModule)
+        {
+            // Create a copy of the module's connectable entrances to prevent errors since we will be dynamically updating this list
+            foreach (var originEntrance in targetModule.ConnectableEntrances.ToList())
+            {
+                var connectableEntrance = DetectConnectableEntrance(originEntrance);
+                if (connectableEntrance is null) continue;
+
+                var connectableModule = connectableEntrance.DungeonModule;
+                
+                targetModule.RemoveConnectableEntrance(originEntrance);
+                connectableModule.RemoveConnectableEntrance(connectableEntrance);
+                
+                RefreshConnections(connectableModule);
+            }
+        }
+
+        /// <summary>
+        /// Detects a <see cref="DungeonPassage"/> that can connect to the given <see cref="DungeonPassage"/>.
+        /// A compatible entrance is one that is physically aligned and facing roughly opposite to the origin entrance.
+        /// </summary>
+        /// <param name="originEntrance">The <see cref="DungeonPassage"/> from which to check for a connectable partner.</param>
+        /// <returns>
+        /// A <see cref="DungeonPassage"/> representing the connectable entrance on another <see cref="DungeonModule"/>.
+        /// </returns>
+        private static DungeonPassage DetectConnectableEntrance(DungeonPassage originEntrance)
+        {
+            var raycastModule = new Ray(originEntrance.EntrancePoint.position, originEntrance.EntrancePoint.forward);
+
+            if (Physics.Raycast(raycastModule, out var raycastHit, 0.05f))
+            {
+                var hitModule = raycastHit.collider.GetComponentInParent<DungeonModule>();
+                if (hitModule is null) return null;
+
+                var originDirection = originEntrance.EntrancePoint.forward;
+                foreach (var candidateEntrance in hitModule.ConnectableEntrances)
+                {
+                    var candidateDirection = candidateEntrance.EntrancePoint.forward;
+                    if (Vector3.Dot(candidateDirection, originDirection) < AlignmentThreshold) return candidateEntrance;
+                }
+            }
+            
+            return null;
+        }
+        
+        /// <summary>
+        /// Updates <see cref="connectableModules"/> to include or exclude a <see cref="DungeonModule"/> based on its available entrances.
         /// </summary>
         /// <param name="targetModule">The <see cref="DungeonModule"/> whose connection state is being updated.</param>
         private void RefreshConnections(DungeonModule targetModule)
         {
-            if (targetModule.ContainsConnectableEntrance())
+            if (0 < targetModule.ConnectableEntrances.Count)
             {
                 if (connectableModules.Contains(targetModule)) return;
                 connectableModules.Add(targetModule);
@@ -625,6 +676,7 @@ namespace Code.Scripts.Dungeon.Behaviours
                 if (connectedModule is not null)
                 {
                     connectedModule.RegisterConnectableEntrance(dungeonLink);
+                    RefreshConnections(connectedModule);
                 }
             }
             
