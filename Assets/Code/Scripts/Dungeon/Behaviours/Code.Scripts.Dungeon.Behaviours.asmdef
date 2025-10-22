@@ -1,4 +1,20 @@
 {
-	"name": "Code.Scripts.Dungeon.Behaviours",
-	"references":[ "GUID:ba70ffd21697c7f41b1c018ad1ca4e08", "GUID:6a745285a484b914796d42707a486874", "GUID:259a19df08dee8e4e951464929e14fd8", "GUID:c570a0503bf62a5479b2ddeed1fa7b33" ]
+    "name": "Code.Scripts.Dungeon.Behaviours",
+    "rootNamespace": "",
+    "references": [
+        "GUID:ba70ffd21697c7f41b1c018ad1ca4e08",
+        "GUID:6a745285a484b914796d42707a486874",
+        "GUID:259a19df08dee8e4e951464929e14fd8",
+        "GUID:c570a0503bf62a5479b2ddeed1fa7b33",
+        "GUID:63662727dbbecef4baed15841a69d5d6"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

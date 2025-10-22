@@ -271,7 +271,7 @@ namespace Code.Scripts.Dungeon.Data.Editor
         /// <param name="weightsField">
         /// The read-only <see cref="FloatField"/> used to display the cumulative weight.
         /// </param>
-        private void CalculateAssetsWeight(SerializedProperty assetsProperty, FloatField weightsField)
+        private static void CalculateAssetsWeight(SerializedProperty assetsProperty, FloatField weightsField)
         {
             var propertyList = new List<SerializedProperty>();
 

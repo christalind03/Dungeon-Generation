@@ -2,10 +2,10 @@ using Code.Scripts.Algorithms;
 using Code.Scripts.Attributes;
 using Code.Scripts.Dungeon.Data;
 using Code.Scripts.Utils;
+using Code.Scripts.Utils.SerializableDictionary;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -15,15 +15,17 @@ namespace Code.Scripts.Dungeon.Behaviours
     /// Procedurally constructs a dungeon layout at runtime using a selected <see cref="DungeonTheme"/>.
     /// This generator selects module categories and modules based on weighted probabilities and spawns them into the scene to create a randomized, replayable dungeon experience.
     /// </summary>
+    [ExecuteInEditMode]
     public class DungeonGenerator : MonoBehaviour
     {
-        private const float AlignmentThreshold = -0.999f;
+        private const float AlignmentThreshold = -1f;
         private const int PlacementLimit = 25;
         private const float RequiredChance = 0.5f;
 
+        [SerializableDictionaryHeader("Theme", "Occurrence Rate")]
         [SerializeField]
         [Tooltip("References to the available dungeon theme assets used by this dungeon.")]
-        private DungeonTheme[] availableThemes;
+        private SerializableDictionary<DungeonTheme, float> possibleThemes;
         
         [Required]
         [SerializeField]
@@ -56,7 +58,7 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// <summary>
         /// The currently selected <see cref="DungeonTheme"/> for generation.
         /// </summary>
-        private DungeonTheme activeTheme;
+        private DungeonTheme selectedTheme;
         
         /// <summary>
         /// The current number of successfully instantiated modules.
@@ -77,14 +79,19 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// A collection of currently active <see cref="DungeonModule"/> that contain at least one open connection point.
         /// </summary>
         private List<DungeonModule> connectableModules;
+
+        /// <summary>
+        /// The alias probability table for sampling <see cref="DungeonTheme"/> values.
+        /// </summary>
+        private AliasProbability<DungeonTheme> themeProbabilities;
         
         /// <summary>
-        /// The alias probability table for sampling <see cref="ModuleCategory"/> values in constant time.
+        /// The alias probability table for sampling <see cref="ModuleCategory"/> values.
         /// </summary>
         private AliasProbability<ModuleCategory> categoryProbabilities;
         
         /// <summary>
-        /// The alias probability tables for each <see cref="ModuleCategory"/> used to sample associated <see cref="ModuleAsset"/> instances.
+        /// The alias probability tables for each <see cref="ModuleCategory"/> used to sample associated <see cref="ModuleAsset"/> values.
         /// </summary>
         private Dictionary<ModuleCategory, AliasProbability<ModuleAsset>> moduleProbabilities;
 
@@ -117,6 +124,25 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// Represents the error encountered during the generation process.
         /// </summary>
         private GenerationError generationError;
+
+        /// <summary>
+        /// Ensures <see cref="DungeonTheme"/> probabilities are initialized before use.
+        /// </summary>
+        private void Awake()
+        {
+            InitializeThemes();
+        }
+
+        /// <summary>
+        /// Creates the <see cref="AliasProbability{TObject}"/> table from the current theme weights provided by <see cref="possibleThemes"/>.
+        /// </summary>
+        private void InitializeThemes()
+        {
+            themeProbabilities = new AliasProbability<DungeonTheme>(
+                possibleThemes.Keys.ToList(),
+                possibleThemes.Values.ToList()
+            );
+        }
         
         /// <summary>
         /// Immediately destroys all child <see cref="GameObject"/>s related to the current generation iteration.
@@ -254,10 +280,15 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// </remarks>
         private void InitializeGeneration()
         {
-            activeTheme = availableThemes[UnityEngine.Random.Range(0, availableThemes.Length)];
+            if (themeProbabilities == null)
+            {
+                InitializeThemes();
+            }
+            
+            selectedTheme = themeProbabilities.Sample();
             
             moduleCount = 0;
-            moduleLimit = UnityEngine.Random.Range(activeTheme.MinimumModules, activeTheme.MaximumModules + 1);
+            moduleLimit = UnityEngine.Random.Range(selectedTheme.MinimumModules, selectedTheme.MaximumModules + 1);
             moduleHistory = new Stack<HistoryEntry>();
             connectableModules = new List<DungeonModule>();
             
@@ -267,7 +298,7 @@ namespace Code.Scripts.Dungeon.Behaviours
 
             categorizedModules = new FrequencyDictionary<ModuleCategory>();
 
-            foreach (var moduleElement in activeTheme.ModuleData)
+            foreach (var moduleElement in selectedTheme.ModuleData)
             {
                 categorizedModules[moduleElement.ModuleCategory] = 0;
             }
@@ -289,7 +320,7 @@ namespace Code.Scripts.Dungeon.Behaviours
             var categoryList = new List<ModuleCategory>();
             var weightsList = new List<float>();
 
-            foreach (var moduleElement in activeTheme.ModuleData)
+            foreach (var moduleElement in selectedTheme.ModuleData)
             {
                 var moduleCategory = moduleElement.ModuleCategory;
                 var moduleWeight = moduleCategory.SpawnRate;
@@ -314,7 +345,7 @@ namespace Code.Scripts.Dungeon.Behaviours
             moduleProbabilities = new Dictionary<ModuleCategory, AliasProbability<ModuleAsset>>();
 
             // Create alias probability lookup tables for module entries in each module category
-            foreach (var moduleElement in activeTheme.ModuleData)
+            foreach (var moduleElement in selectedTheme.ModuleData)
             {
                 moduleProbabilities[moduleElement.ModuleCategory] = new AliasProbability<ModuleAsset>(
                     moduleElement.ModuleAssets,
@@ -324,14 +355,14 @@ namespace Code.Scripts.Dungeon.Behaviours
         }
 
         /// <summary>
-        /// Populates the <see cref="requiredModules"/> and <see cref="uniqueModules"/> lists with modules that are marked as required for the current <see cref="activeTheme"/>.
+        /// Populates the <see cref="requiredModules"/> and <see cref="uniqueModules"/> lists with modules that are marked as required for the current <see cref="selectedTheme"/>.
         /// </summary>
         private void InitializeRequiredModules()
         {
             requiredModules = new FrequencyDictionary<(ModuleAsset, ModuleCategory)>();
             uniqueModules = new List<ModuleAsset>();
 
-            foreach (var moduleElement in activeTheme.ModuleData)
+            foreach (var moduleElement in selectedTheme.ModuleData)
             {
                 var openSlots = moduleLimit - requiredModules.Count;
                 if (openSlots <= 0)
