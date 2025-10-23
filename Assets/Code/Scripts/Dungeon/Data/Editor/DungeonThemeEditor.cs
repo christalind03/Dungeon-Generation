@@ -10,7 +10,7 @@ using UnityEngine.UIElements;
 namespace Code.Scripts.Dungeon.Data.Editor
 {
     /// <summary>
-    /// Custom inspector for <see cref="DungeonTheme"/>.
+    /// A custom inspector for <see cref="DungeonTheme"/> objects.
     /// Provides a UI Toolkit based editor to manage the theme name, module categories, and module data.
     /// </summary>
     [CustomEditor(typeof(DungeonTheme))]

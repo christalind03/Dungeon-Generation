@@ -32,7 +32,9 @@ namespace Code.Scripts.Dungeon.Behaviours
         [Tooltip("Specifies which layers are considered when detecting overlaps with existing modules.")]
         private LayerMask placementLayers;
         
-        [Header("Generation Callbacks")]
+        [SerializeField]
+        [Tooltip("Determines whether the generator permits cyclic connections between modules.")]
+        private bool enableLoops;
         
         [SerializeField]
         [Tooltip("Called when generation has failed.")]
@@ -41,19 +43,6 @@ namespace Code.Scripts.Dungeon.Behaviours
         [SerializeField]
         [Tooltip("Called when generation has completed without error.")]
         private UnityEvent onGenerationSuccess;
-        
-        [Header("Generation Settings")]
-        
-        [SerializeField]
-        [Tooltip("Determines whether the generator permits cyclic connections between modules.")]
-        private bool enableLoops;
-        
-        [Header("Editor Utilities")]
-        
-        [Button("Generate Dungeon", nameof(GenerateDungeon), new object[] { false })]
-        [Button("Destroy Dungeon", nameof(DestroyDungeon))]
-        [SerializeField]
-        private bool buttonRenderer;
         
         /// <summary>
         /// The currently selected <see cref="DungeonTheme"/> for generation.
@@ -147,7 +136,7 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// <summary>
         /// Immediately destroys all child <see cref="GameObject"/>s related to the current generation iteration.
         /// </summary>
-        public void DestroyDungeon()
+        public void Destroy()
         {
             for (var itemIndex = transform.childCount - 1; 0 <= itemIndex; itemIndex--)
             {
@@ -163,10 +152,10 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// <item><description>Spawning modules until the target count is reached, respecting required category constraints</description></item>
         /// </list>
         /// </summary>
-        public void GenerateDungeon(bool triggerCallbacks = true)
+        public void Generate()
         {
             // Clear the current generation iteration (if any) and reset the parameters used by the generator
-            DestroyDungeon();
+            Destroy();
             InitializeGeneration();
 
             while (generationError == GenerationError.None && moduleCount < moduleLimit)
@@ -258,17 +247,14 @@ namespace Code.Scripts.Dungeon.Behaviours
 
             #endif
             
-            if (triggerCallbacks)
+            var generationFailed = generationError != GenerationError.None || moduleCount < moduleLimit;
+            if (generationFailed)
             {
-                var generationFailed = generationError != GenerationError.None || moduleCount < moduleLimit;
-                if (generationFailed)
-                {
-                    onGenerationFailed.Invoke();
-                }
-                else
-                {
-                    onGenerationSuccess.Invoke();
-                }
+                onGenerationFailed.Invoke();
+            }
+            else
+            {
+                onGenerationSuccess.Invoke();
             }
         }
         
