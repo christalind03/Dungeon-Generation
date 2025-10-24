@@ -75,6 +75,7 @@ namespace Code.Scripts.Dungeon.Behaviours.Editor
             rootElement.Add(new PropertyField(enableLoopsProperty));
             rootElement.Add(InspectorSpace(10));
             rootElement.Add(HeaderLabel("Generation Callbacks"));
+            rootElement.Add(InspectorSpace(3));
             rootElement.Add(new PropertyField(onGenerationFailedProperty));
             rootElement.Add(InspectorSpace(5));
             rootElement.Add(new PropertyField(onGenerationSuccessProperty));
@@ -124,7 +125,7 @@ namespace Code.Scripts.Dungeon.Behaviours.Editor
         {
             var editorUtilities = new VisualElement();
 
-            var buttonContainer = new VisualElement
+            var generateContainer = new VisualElement
             {
                 style =
                 {
@@ -133,14 +134,16 @@ namespace Code.Scripts.Dungeon.Behaviours.Editor
                 }
             };
             
-            var generateButton = InvokeButton("Generate", "Generate");
-            var destroyButton = InvokeButton("Destroy", "Destroy");
+            var generateDungeonButton = InvokeButton("Generate Dungeon", "GenerateDungeon");
+            var generateNavMeshButton = InvokeButton("Generate NavMesh", "GenerateNavMesh");
+            var destroyButton = InvokeButton("Reset Environment", "ResetEnvironment");
             
-            buttonContainer.Add(generateButton);
-            buttonContainer.Add(destroyButton);
+            generateContainer.Add(generateDungeonButton);
+            generateContainer.Add(generateNavMeshButton);
             
             editorUtilities.Add(HeaderLabel("Editor Utilities"));
-            editorUtilities.Add(buttonContainer);
+            editorUtilities.Add(generateContainer);
+            editorUtilities.Add(destroyButton);
             
             return editorUtilities;
         }

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Code.Scripts.Algorithms
+namespace Code.Scripts.Dungeon.Algorithms
 {
     /// <summary>
     /// Implements the <c>Alias Method</c> for efficient weighted random sampling.

@@ -1,13 +1,13 @@
 using System;
 using UnityEngine;
 
-namespace Code.Scripts.Attributes
+namespace Code.Scripts.Attributes.Required
 {
     /// <summary>
     /// Attribute used to indicate that a field is required and must be assigned a value in the Unity Inspector.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field)]
-    public class Required : PropertyAttribute
+    public class RequiredAttribute : PropertyAttribute
     {
         /// <summary>
         /// Determines whether the field label should be displayed in the inspector when using the custom drawer.
@@ -22,7 +22,7 @@ namespace Code.Scripts.Attributes
         public readonly string RequireIf;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Required"/> attribute.
+        /// Initializes a new instance of the <see cref="RequiredAttribute"/> attribute.
         /// </summary>
         /// <param name="displayLabel">
         /// If <c>true</c>, the field's label will be displayed in the inspector.
@@ -36,7 +36,7 @@ namespace Code.Scripts.Attributes
         /// When set, this field is required only if the referenced field is non-null/true (invert with <c>!</c>).
         /// Defaults to an empty string, meaning the field is always required.
         /// </param>
-        public Required(bool displayLabel = true, bool normalizeLayout = false, string requireIf = "")
+        public RequiredAttribute(bool displayLabel = true, bool normalizeLayout = false, string requireIf = "")
         {
             DisplayLabel = displayLabel;
             NormalizeLayout = normalizeLayout;

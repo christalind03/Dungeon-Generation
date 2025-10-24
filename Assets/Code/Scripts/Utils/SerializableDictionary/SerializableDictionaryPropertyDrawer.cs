@@ -13,9 +13,9 @@ namespace Code.Scripts.Utils.SerializableDictionary
     /// A custom property drawer for <see cref="SerializableDictionary{TKey,TValue}"/>.
     /// </summary>
     /// <remarks>
-    /// If a <see cref="SerializableDictionaryHeader"/> attribute was applied, the 
+    /// If a <see cref="SerializableDictionaryAttribute"/> attribute was applied, the 
     /// </remarks>
-    [CustomPropertyDrawer(typeof(SerializableDictionary<,>))]
+    [CustomPropertyDrawer(typeof(SerializableDictionary<,>), true)]
     public class SerializableDictionaryPropertyDrawer : PropertyDrawer
     {
         /// <summary>
@@ -36,7 +36,7 @@ namespace Code.Scripts.Utils.SerializableDictionary
                 return null;
             }
             
-            var headerAttribute = fieldInfo.GetCustomAttribute<SerializableDictionaryHeader>();
+            var headerAttribute = fieldInfo.GetCustomAttribute<SerializableDictionaryAttribute>();
             var rootElement = new MultiColumnListView
             {
                 itemsSource = Enumerable.Range(0, keysProperty.arraySize).ToList(),
@@ -48,8 +48,8 @@ namespace Code.Scripts.Utils.SerializableDictionary
                 virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight
             };
             
-            rootElement.columns.Add(CreateColumn(headerAttribute.KeyLabel ?? "Keys", keysProperty));
-            rootElement.columns.Add(CreateColumn(headerAttribute.ValueLabel ?? "Values", valuesProperty));
+            rootElement.columns.Add(CreateColumn(headerAttribute?.KeyLabel ?? "Keys", keysProperty));
+            rootElement.columns.Add(CreateColumn(headerAttribute?.ValueLabel ?? "Values", valuesProperty));
             
             rootElement.onAdd += _ =>
             {

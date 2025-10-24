@@ -11,6 +11,9 @@ namespace Code.Scripts.Utils.SerializableDictionary
     /// </summary>
     /// <typeparam name="TKey">The type of key to use in the dictionary.</typeparam>
     /// <typeparam name="TValue">The type of value to use in the dictionary.</typeparam>
+    /// <remarks>
+    /// Based on an implementation by <see href="https://github.com/JDSherbert/Unity-Serializable-Dictionary">JDSherbert on GitHub</see>.
+    /// </remarks>
     [Serializable]
     public class SerializableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDeserializationCallback, ISerializable, ISerializationCallbackReceiver
     {

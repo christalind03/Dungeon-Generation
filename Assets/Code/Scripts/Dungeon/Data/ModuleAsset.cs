@@ -1,5 +1,5 @@
+using Code.Scripts.Attributes.Required;
 using System;
-using Code.Scripts.Attributes;
 using UnityEngine;
 
 namespace Code.Scripts.Dungeon.Data

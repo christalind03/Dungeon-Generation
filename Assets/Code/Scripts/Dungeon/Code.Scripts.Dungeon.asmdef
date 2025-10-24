@@ -1,9 +1,10 @@
 {
-    "name": "Code.Scripts.Dungeon.Data",
+    "name": "Code.Scripts.Dungeon",
     "rootNamespace": "",
     "references": [
         "GUID:ba70ffd21697c7f41b1c018ad1ca4e08",
-        "GUID:259a19df08dee8e4e951464929e14fd8"
+        "GUID:259a19df08dee8e4e951464929e14fd8",
+        "GUID:8c4dd21966739024fbd72155091d199e"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

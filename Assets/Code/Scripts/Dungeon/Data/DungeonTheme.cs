@@ -1,4 +1,4 @@
-using Code.Scripts.Attributes;
+using Code.Scripts.Attributes.Required;
 using Code.Scripts.Utils;
 using System.Linq;
 using UnityEngine;
@@ -57,7 +57,7 @@ namespace Code.Scripts.Dungeon.Data
         /// </summary>
         public void OnValidate()
         {
-            ScriptValidator.LogError(
+            ObjectValidator.AssertConditions(
                 this,
                 (maximumModules < minimumModules, $"<b>{nameof(maximumModules)}</b> must be greater than <b>{nameof(minimumModules)}</b>"),
                 (moduleData.Length <= 0, $"<b>{nameof(moduleData)}</b> must contain at least one element."),

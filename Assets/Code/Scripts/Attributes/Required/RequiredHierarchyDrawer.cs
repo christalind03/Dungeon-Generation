@@ -8,16 +8,16 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace Code.Scripts.Attributes.Editor.Required
+namespace Code.Scripts.Attributes.Required
 {
     /// <summary>
-    /// Draws visual indicators in the Unity hierarchy when a <see cref="Required"/> field is unassigned.
+    /// Draws visual indicators in the Unity hierarchy when a <see cref="RequiredAttribute"/> field is unassigned.
     /// </summary>
     /// <remarks>
     /// Based on an implementation by <see href="https://www.youtube.com/watch?v=OidPCs1YECo">git-amend on YouTube</see>.
     /// </remarks>
     [InitializeOnLoad]
-    public static class RequiredHierarchyDrawer
+    internal static class RequiredHierarchyDrawer
     {
         private static readonly Dictionary<Type, FieldInfo[]> CachedFieldInfo = new();
         
@@ -61,30 +61,29 @@ namespace Code.Scripts.Attributes.Editor.Required
         /// </summary>
         /// <param name="componentType">The type of the component being inspected.</param>
         /// <returns>
-        /// An array of <see cref="FieldInfo"/> objects for fields that are public or serialized and marked with <see cref="Required"/>.
+        /// An array of <see cref="FieldInfo"/> objects for fields that are public or serialized and marked with <see cref="RequiredAttribute"/>.
         /// </returns>
         private static FieldInfo[] GetRequiredFields(Type componentType)
         {
-            if (!CachedFieldInfo.TryGetValue(componentType, out var fieldInfos))
-            {
-                List<FieldInfo> requiredFields = new();
-                fieldInfos = componentType.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-
-                foreach (var fieldInfo in fieldInfos)
-                {
-                    var isSerialized = fieldInfo.IsPublic || fieldInfo.IsDefined(typeof(SerializeField), false);
-                    var isRequired = fieldInfo.IsDefined(typeof(Attributes.Required), false);
-
-                    if (isSerialized && isRequired)
-                    {
-                        requiredFields.Add(fieldInfo);
-                    }
-                }
-                
-                fieldInfos = requiredFields.ToArray();
-                CachedFieldInfo[componentType] = fieldInfos;
-            }
+            if (CachedFieldInfo.TryGetValue(componentType, out var fieldInfos)) return fieldInfos;
             
+            List<FieldInfo> requiredFields = new();
+            fieldInfos = componentType.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+
+            foreach (var fieldInfo in fieldInfos)
+            {
+                var isSerialized = fieldInfo.IsPublic || fieldInfo.IsDefined(typeof(SerializeField), false);
+                var isRequired = fieldInfo.IsDefined(typeof(RequiredAttribute), false);
+
+                if (isSerialized && isRequired)
+                {
+                    requiredFields.Add(fieldInfo);
+                }
+            }
+                
+            fieldInfos = requiredFields.ToArray();
+            CachedFieldInfo[componentType] = fieldInfos;
+
             return fieldInfos;
         }
 

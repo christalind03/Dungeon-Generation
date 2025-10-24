@@ -1,4 +1,4 @@
-using Code.Scripts.Attributes;
+using Code.Scripts.Attributes.Required;
 using UnityEngine;
 
 namespace Code.Scripts.Player

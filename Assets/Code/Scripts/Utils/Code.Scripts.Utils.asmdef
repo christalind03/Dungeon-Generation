@@ -1,3 +1,4 @@
 {
-	"name": "Code.Scripts.Utils"
+	"name": "Code.Scripts.Utils",
+	"references":[ "GUID:63662727dbbecef4baed15841a69d5d6" ]
 }

@@ -1,4 +1,4 @@
-using Code.Scripts.Attributes;
+using Code.Scripts.Attributes.Required;
 using System;
 using UnityEngine;
 

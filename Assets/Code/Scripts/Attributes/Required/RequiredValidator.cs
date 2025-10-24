@@ -1,15 +1,16 @@
 #if UNITY_EDITOR
 
+using System;
 using System.Collections;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace Code.Scripts.Attributes.Editor.Required
+namespace Code.Scripts.Attributes.Required
 {
     /// <summary>
-    /// Validates all <see cref="Required"/> fields before entering Play Mode.
+    /// Validates all <see cref="RequiredAttribute"/> fields before entering Play Mode.
     /// </summary>
     /// <remarks>
     /// Based on an implementation by <see href="https://www.youtube.com/watch?v=cVxjKphoi5o">Freedom Coding on YouTube</see>.
@@ -31,12 +32,12 @@ namespace Code.Scripts.Attributes.Editor.Required
         }
 
         /// <summary>
-        /// Scans all <see cref="Required"/> instances in the scene and logs errors for any unassigned <see cref="Required"/> fields.
+        /// Scans all <see cref="RequiredAttribute"/> instances in the scene and logs errors for any unassigned <see cref="RequiredAttribute"/> fields.
         /// </summary>
         private static void CheckRequirements()
         {
             var hasErrors = false;
-            var monoBehaviours = Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
+            var monoBehaviours = UnityEngine.Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
 
             foreach (var monoBehaviour in monoBehaviours)
             {
@@ -49,27 +50,27 @@ namespace Code.Scripts.Attributes.Editor.Required
         }
 
         /// <summary>
-        /// Ensures that all fields marked with <see cref="Attributes.Required"/> in the given target object are properly assigned.
+        /// Ensures that all fields marked with <see cref="RequiredAttribute"/> in the given target object are properly assigned.
         /// If any required fields are unassigned, it logs an error in the Unity console and updates <see cref="hasErrors"/> to indicate validation failure.
         /// </summary>
         /// <param name="unityObject">
-        /// The <see cref="Object"/> that owns the <paramref name="targetObject"/>.
+        /// The <see cref="UnityEngine.Object"/> that owns the <paramref name="targetObject"/>.
         /// Used for context in error messages.
         /// </param>
         /// <param name="targetObject">
-        /// The object instance whose fields are inspected for the <see cref="Attributes.Required"/> attribute.
+        /// The object instance whose fields are inspected for the <see cref="RequiredAttribute"/> attribute.
         /// </param>
         /// <param name="hasErrors">
         /// A reference to a flag indicating whether validation errors have occurred.
         /// This will be set to <c>true</c> if any unassigned required fields are detected.
         /// </param>
-        public static void EnsureAssignment(Object unityObject, object targetObject, ref bool hasErrors)
+        public static void EnsureAssignment(UnityEngine.Object unityObject, object targetObject, ref bool hasErrors)
         {
             var fieldInfo = targetObject.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
 
             foreach (var currentInfo in fieldInfo)
             {
-                var requiredAttribute = currentInfo.GetCustomAttribute<Attributes.Required>();
+                var requiredAttribute = currentInfo.GetCustomAttribute<Attributes.Required.RequiredAttribute>();
                 
                 if (requiredAttribute == null) continue;
                 if (!string.IsNullOrEmpty(requiredAttribute.RequireIf))
@@ -113,17 +114,41 @@ namespace Code.Scripts.Attributes.Editor.Required
             return targetObject switch
             {
                 null => false,
-                Object unityObject => !unityObject.Equals(null),
-                LayerMask layerObject => layerObject.value != 0,
-                IEnumerable enumerableObject => enumerableObject.Cast<object>().Any(),
-                _ => targetObject.GetType() switch
-                {
-                    var unknownType when unknownType == typeof(bool) => true,
-                    var unknownType when unknownType == typeof(float) => !Mathf.Approximately((float)targetObject, float.Epsilon),
-                    var unknownType when unknownType == typeof(int) => (int)targetObject != 0,
-                    var unknownType when unknownType == typeof(string) => !string.IsNullOrEmpty((string)targetObject),
-                    _ => false
-                }
+                UnityEngine.Object unityObject => !unityObject.Equals(null),
+                
+                // Primitive Types
+                bool => true,
+                int castedValue => castedValue != 0,
+                float castedValue => !Mathf.Approximately(castedValue, 0f),
+                double castedValue => castedValue != 0,
+                string castedValue => !string.IsNullOrEmpty(castedValue),
+                char castedValue => castedValue != '\0',
+                
+                // Unity Types
+                Color castedValue => castedValue != default,
+                Vector2 castedValue => castedValue != default,
+                Vector3 castedValue => castedValue != default,
+                Vector4 castedValue => castedValue != default,
+                Bounds castedValue => castedValue != default,
+                Rect castedValue => castedValue != default,
+                Quaternion castedValue => castedValue != default,
+                Vector2Int castedValue => castedValue != default,
+                Vector3Int castedValue => castedValue != default,
+                BoundsInt castedValue => castedValue != default,
+                RectInt castedValue => castedValue != default,
+                Hash128 castedValue => castedValue != default,
+                
+                // Unity Utility Types
+                Gradient => true,
+                AnimationCurve => true,
+                ExposedReference<UnityEngine.Object> castedValue => castedValue is { },
+                LayerMask castedValue => castedValue != 0,
+
+                // Enumerable Types
+                IEnumerable castedValue => castedValue.Cast<object>().Any(),
+
+                // Fallback for managed types or structs
+                _ => !targetObject.GetType().IsValueType || !targetObject.Equals(Activator.CreateInstance(targetObject.GetType()))
             };
         }
     }

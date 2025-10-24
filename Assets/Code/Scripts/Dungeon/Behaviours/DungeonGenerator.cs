@@ -1,11 +1,12 @@
-using Code.Scripts.Algorithms;
-using Code.Scripts.Attributes;
+using Code.Scripts.Attributes.Required;
+using Code.Scripts.Dungeon.Algorithms;
 using Code.Scripts.Dungeon.Data;
 using Code.Scripts.Utils;
 using Code.Scripts.Utils.SerializableDictionary;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.AI.Navigation;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -21,8 +22,8 @@ namespace Code.Scripts.Dungeon.Behaviours
         private const float AlignmentThreshold = -1f;
         private const int PlacementLimit = 25;
         private const float RequiredChance = 0.5f;
-
-        [SerializableDictionaryHeader("Theme", "Occurrence Rate")]
+        
+        [SerializableDictionary("Theme", "Occurrence Rate")]
         [SerializeField]
         [Tooltip("References to the available dungeon theme assets used by this dungeon.")]
         private SerializableDictionary<DungeonTheme, float> possibleThemes;
@@ -132,17 +133,6 @@ namespace Code.Scripts.Dungeon.Behaviours
                 possibleThemes.Values.ToList()
             );
         }
-        
-        /// <summary>
-        /// Immediately destroys all child <see cref="GameObject"/>s related to the current generation iteration.
-        /// </summary>
-        public void Destroy()
-        {
-            for (var itemIndex = transform.childCount - 1; 0 <= itemIndex; itemIndex--)
-            {
-                DestroyModule(transform.GetChild(itemIndex).gameObject);
-            }
-        }
 
         /// <summary>
         /// Generates a randomized dungeon by completing the following steps:
@@ -152,10 +142,10 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// <item><description>Spawning modules until the target count is reached, respecting required category constraints</description></item>
         /// </list>
         /// </summary>
-        public void Generate()
+        public void GenerateDungeon()
         {
             // Clear the current generation iteration (if any) and reset the parameters used by the generator
-            Destroy();
+            ResetEnvironment();
             InitializeGeneration();
 
             while (generationError == GenerationError.None && moduleCount < moduleLimit)
@@ -383,7 +373,7 @@ namespace Code.Scripts.Dungeon.Behaviours
                         var moduleAsset = SampleWeightedModule(moduleCategory);
                         if (moduleAsset == null) continue;
 
-                        requiredModules.Increment((moduleAsset, moduleCategory));
+                        RegisterRequiredModule(moduleAsset, moduleCategory);
                         spawnCount++;
                     }
                 }
@@ -391,10 +381,25 @@ namespace Code.Scripts.Dungeon.Behaviours
                 {
                     var moduleAsset = SampleWeightedModule(moduleCategory);
                     if (moduleAsset == null) continue;
-
-                    requiredModules.Increment((moduleAsset, moduleCategory));
+                    
+                    RegisterRequiredModule(moduleAsset, moduleCategory);
                 }
             }
+        }
+        
+        /// <summary>
+        /// Registers a module as required by incrementing its count in <see cref="requiredModules"/>.
+        /// </summary>
+        /// <param name="moduleAsset">The <see cref="ModuleAsset"/> being registered.</param>
+        /// <param name="moduleCategory">The <see cref="ModuleCategory"/> of the module being registered.</param>
+        private void RegisterRequiredModule(ModuleAsset moduleAsset, ModuleCategory moduleCategory)
+        {
+            if (requiredModules.ContainsKey((moduleAsset, moduleCategory)) == false)
+            {
+                requiredModules[(moduleAsset, moduleCategory)] = 0;    
+            }
+                    
+            requiredModules[(moduleAsset, moduleCategory)]++;
         }
         
         /// <summary>
@@ -506,7 +511,7 @@ namespace Code.Scripts.Dungeon.Behaviours
             {
                 connectableModules.Add(instantiatedModule);
             
-                RecordModule(new HistoryEntry(moduleAsset, moduleCategory, null, moduleInstance), isRequired);
+                RecordModule(new HistoryEntry(moduleAsset, moduleCategory, instantiatedModule, null), isRequired);
                 return true;
             }
 
@@ -517,7 +522,8 @@ namespace Code.Scripts.Dungeon.Behaviours
 
             if (ContainsIntersections(instantiatedModule))
             {
-                DestroyModule(moduleInstance);
+                // DestroyModule(moduleInstance);
+                DestroyModule(instantiatedModule);
                 return false;
             }
 
@@ -532,7 +538,7 @@ namespace Code.Scripts.Dungeon.Behaviours
             RefreshConnections(instantiatedModule);
             RefreshConnections(connectedModule);
 
-            RecordModule(new HistoryEntry(moduleAsset, moduleCategory, connectedEntrance, moduleInstance), isRequired);
+            RecordModule(new HistoryEntry(moduleAsset, moduleCategory, instantiatedModule, connectedEntrance), isRequired);
             return true;
         }
 
@@ -655,10 +661,10 @@ namespace Code.Scripts.Dungeon.Behaviours
 
             if (isRequired)
             {
-                requiredModules.Decrement((historyEntry.Asset, historyEntry.Category));
+                requiredModules[(historyEntry.ModuleAsset, historyEntry.ModuleCategory)]--;
             }
 
-            categorizedModules.Increment(historyEntry.Category);
+            categorizedModules[historyEntry.ModuleCategory]++;
         }
 
         /// <summary>
@@ -684,9 +690,9 @@ namespace Code.Scripts.Dungeon.Behaviours
             var historyEntry = moduleHistory.Pop();
 
             moduleCount--;
-            categorizedModules.Decrement(historyEntry.Category);
+            categorizedModules[historyEntry.ModuleCategory]--;
             
-            var dungeonLink = historyEntry.Entrance;
+            var dungeonLink = historyEntry.ConnectedEntrance;
             if (dungeonLink is not null)
             {
                 var connectedModule = dungeonLink.DungeonModule;
@@ -697,13 +703,13 @@ namespace Code.Scripts.Dungeon.Behaviours
                 }
             }
             
-            if (requiredModules.ContainsKey((historyEntry.Asset, historyEntry.Category)))
+            if (requiredModules.ContainsKey((historyEntry.ModuleAsset, historyEntry.ModuleCategory)))
             {
-                requiredModules.Increment((historyEntry.Asset, historyEntry.Category));
+                requiredModules[(historyEntry.ModuleAsset, historyEntry.ModuleCategory)]++;
             }
             
-            DestroyModule(historyEntry.Instance);
-
+            DestroyModule(historyEntry.DungeonModule);
+            
             backtrackAttempts++;
             return true;
         }
@@ -712,28 +718,62 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// Destroys the specified <see cref="UnityEngine.Object"/>.
         /// </summary>
         /// <param name="targetObject">The <see cref="UnityEngine.Object"/> to be destroyed.</param>
-        private void DestroyModule(UnityEngine.Object targetObject)
+        private void DestroyModule(DungeonModule targetObject)
         {
-            if (targetObject is GameObject gameObject)
-            {
-                var moduleComponent = gameObject.GetComponent<DungeonModule>();
-                if (moduleComponent is not null)
-                {
-                    connectableModules?.Remove(moduleComponent);
-                }
-            }
+            connectableModules?.Remove(targetObject);
             
             #if UNITY_EDITOR
             
             if (Application.isPlaying == false)
             {
-                DestroyImmediate(targetObject);
+                DestroyImmediate(targetObject.gameObject);
                 return;
             }
             
             #endif
             
-            Destroy(targetObject);
+            Destroy(targetObject.gameObject);
+        }
+        
+        /// <summary>
+        /// Generates a NavMesh for the current <see cref="GameObject"/>.
+        /// Ensures that a <see cref="NavMeshSurface"/> exists on the <see cref="GameObject"/> and builds the NavMesh.
+        /// </summary>
+        public void GenerateNavMesh()
+        {
+            if (transform.childCount <= 0)
+            {
+                #if UNITY_EDITOR
+                Debug.LogError($"[{name}] NavMesh generation failed due to missing child objects.", gameObject);
+                #endif
+                
+                return;
+            }
+            
+            var navMeshSurface = gameObject.GetComponent<NavMeshSurface>();
+            if (navMeshSurface is null)
+            {
+                navMeshSurface = gameObject.AddComponent<NavMeshSurface>();
+            }
+
+            navMeshSurface.BuildNavMesh();
+        }
+        
+        /// <summary>
+        /// Resets the environment by destroying all generated child objects and removing any associated <see cref="NavMeshSurface"/> data.
+        /// </summary>
+        public void ResetEnvironment()
+        {
+            for (var itemIndex = transform.childCount - 1; 0 <= itemIndex; itemIndex--)
+            {
+                var targetModule = transform.GetChild(itemIndex).gameObject.GetComponent<DungeonModule>();
+                if (targetModule is null) continue;
+                
+                DestroyModule(targetModule);
+            }
+            
+            var navMeshSurface = gameObject.GetComponent<NavMeshSurface>();
+            navMeshSurface?.RemoveData();
         }
         
         /// <summary>
@@ -754,17 +794,17 @@ namespace Code.Scripts.Dungeon.Behaviours
         /// </summary>
         private readonly struct HistoryEntry
         {
-            public readonly ModuleAsset Asset;
-            public readonly ModuleCategory Category;
-            public readonly DungeonPassage Entrance;
-            public readonly GameObject Instance;
+            public readonly ModuleAsset ModuleAsset;
+            public readonly ModuleCategory ModuleCategory;
+            public readonly DungeonModule DungeonModule;
+            public readonly DungeonPassage ConnectedEntrance;
 
-            public HistoryEntry(ModuleAsset moduleAsset, ModuleCategory moduleCategory, DungeonPassage dungeonPassage, GameObject objectInstance)
+            public HistoryEntry(ModuleAsset moduleAsset, ModuleCategory moduleCategory, DungeonModule dungeonModule, DungeonPassage connectedEntrance)
             {
-                Asset = moduleAsset;
-                Category = moduleCategory;
-                Entrance = dungeonPassage;
-                Instance = objectInstance;
+                ModuleAsset = moduleAsset;
+                ModuleCategory = moduleCategory;
+                DungeonModule = dungeonModule;
+                ConnectedEntrance = connectedEntrance;
             }
         }
     }

@@ -1,21 +1,22 @@
 #if UNITY_EDITOR
 
+using System;
 using System.Reflection;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Code.Scripts.Attributes.Editor.Required
+namespace Code.Scripts.Attributes.Required
 {
     /// <summary>
-    /// A custom property drawer for the <see cref="Required"/> attribute.
+    /// A custom property drawer for the <see cref="RequiredAttribute"/> attribute.
     /// </summary>
     /// <remarks>
     /// Based on an implementation by <see href="https://www.youtube.com/watch?v=OidPCs1YECo">git-amend on YouTube</see>.
     /// </remarks>
-    [CustomPropertyDrawer(typeof(Attributes.Required))]
-    public class RequiredPropertyDrawer : PropertyDrawer
+    [CustomPropertyDrawer(typeof(RequiredAttribute))]
+    internal class RequiredPropertyDrawer : PropertyDrawer
     {
         /// <summary>
         /// Renders the property field with additional validation visuals if unassigned.
@@ -23,7 +24,7 @@ namespace Code.Scripts.Attributes.Editor.Required
         /// <param name="serializedProperty">The property being drawn.</param>
         public override VisualElement CreatePropertyGUI(SerializedProperty serializedProperty)
         {
-            var attributeInfo = fieldInfo.GetCustomAttribute<Attributes.Required>();
+            var attributeInfo = fieldInfo.GetCustomAttribute<RequiredAttribute>();
             var propertyContainer = new VisualElement
             {
                 style =
@@ -98,12 +99,34 @@ namespace Code.Scripts.Attributes.Editor.Required
         {
             return serializedProperty.propertyType switch
             {
-                SerializedPropertyType.Boolean => true,
-                SerializedPropertyType.Float => !Mathf.Approximately(serializedProperty.floatValue, float.Epsilon),
+                SerializedPropertyType.Generic => serializedProperty.Copy().Next(true),
                 SerializedPropertyType.Integer => serializedProperty.intValue != 0,
-                SerializedPropertyType.ObjectReference => serializedProperty.objectReferenceValue,
-                SerializedPropertyType.LayerMask => serializedProperty.intValue != 0,
+                SerializedPropertyType.Boolean => true,
+                SerializedPropertyType.Float => !Mathf.Approximately(serializedProperty.floatValue, 0f),
                 SerializedPropertyType.String => !string.IsNullOrEmpty(serializedProperty.stringValue),
+                SerializedPropertyType.Color => serializedProperty.colorValue != default,
+                SerializedPropertyType.ObjectReference => serializedProperty.objectReferenceValue is not null,
+                SerializedPropertyType.LayerMask => serializedProperty.intValue != 0,
+                SerializedPropertyType.Enum => serializedProperty.enumValueIndex != 0,
+                SerializedPropertyType.Vector2 => serializedProperty.vector2Value != default,
+                SerializedPropertyType.Vector3 => serializedProperty.vector3Value != default,
+                SerializedPropertyType.Vector4 =>  serializedProperty.vector4Value != default,
+                SerializedPropertyType.Rect => serializedProperty.rectValue != default,
+                SerializedPropertyType.ArraySize => serializedProperty.arraySize != 0,
+                SerializedPropertyType.Character => serializedProperty.intValue != 0,
+                SerializedPropertyType.AnimationCurve => serializedProperty.animationCurveValue != null,
+                SerializedPropertyType.Bounds => serializedProperty.boundsValue != default,
+                SerializedPropertyType.Gradient => serializedProperty.gradientValue != null,
+                SerializedPropertyType.Quaternion => serializedProperty.quaternionValue != default,
+                SerializedPropertyType.ExposedReference => serializedProperty.exposedReferenceValue is not null,
+                SerializedPropertyType.FixedBufferSize => serializedProperty.fixedBufferSize != 0,
+                SerializedPropertyType.Vector2Int => serializedProperty.vector2IntValue != default,
+                SerializedPropertyType.Vector3Int => serializedProperty.vector3IntValue != default,
+                SerializedPropertyType.RectInt => serializedProperty.rectIntValue != default,
+                SerializedPropertyType.BoundsInt => serializedProperty.boundsIntValue != default,
+                SerializedPropertyType.ManagedReference => serializedProperty.managedReferenceValue is not null,
+                SerializedPropertyType.Hash128 => serializedProperty.hash128Value != default,
+                SerializedPropertyType.RenderingLayerMask => serializedProperty.intValue != 0,
                 _ => false
             };
         }

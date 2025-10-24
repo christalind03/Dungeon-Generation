@@ -1,6 +1,6 @@
 #if UNITY_EDITOR
 
-using Code.Scripts.Attributes.Editor.Required;
+using Code.Scripts.Attributes.Required;
 using System;
 using System.Reflection;
 using UnityEditor;
