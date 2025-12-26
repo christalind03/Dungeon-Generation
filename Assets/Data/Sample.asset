@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sample
   m_EditorClassIdentifier: 
   themeTitle: Sample
-  maximumModules: 150
+  maximumModules: 50
   minimumModules: 1
   moduleData:
   - moduleAssets:

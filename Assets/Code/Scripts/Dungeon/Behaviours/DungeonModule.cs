@@ -9,7 +9,7 @@ namespace Code.Scripts.Dungeon.Behaviours
     /// <summary>
     /// Represents a modular section of a dungeon.
     /// </summary>
-    [ExecuteInEditMode]
+    [ExecuteAlways]
     public class DungeonModule : MonoBehaviour
     {
         [Required]

@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Code.Scripts.Utils.SerializableDictionary
+namespace Code.Scripts.Utils.SerializableDictionary.Attributes
 {
     /// <summary>
     /// Defines custom header labels for a <see cref="SerializableDictionary{TKey,TValue}"/> field in the Inspector.

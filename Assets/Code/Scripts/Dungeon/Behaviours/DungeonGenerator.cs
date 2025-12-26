@@ -3,6 +3,7 @@ using Code.Scripts.Dungeon.Algorithms;
 using Code.Scripts.Dungeon.Data;
 using Code.Scripts.Utils;
 using Code.Scripts.Utils.SerializableDictionary;
+using Code.Scripts.Utils.SerializableDictionary.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,11 +17,11 @@ namespace Code.Scripts.Dungeon.Behaviours
     /// Procedurally constructs a dungeon layout at runtime using a selected <see cref="DungeonTheme"/>.
     /// This generator selects module categories and modules based on weighted probabilities and spawns them into the scene to create a randomized, replayable dungeon experience.
     /// </summary>
-    [ExecuteInEditMode]
+    [ExecuteAlways]
     public class DungeonGenerator : MonoBehaviour
     {
-        private const float AlignmentThreshold = -1f;
         private const int PlacementLimit = 25;
+        private const float PlacementThreshold = -1f;
         private const float RequiredChance = 0.5f;
         
         [SerializableDictionary("Theme", "Occurrence Rate")]
@@ -123,6 +124,14 @@ namespace Code.Scripts.Dungeon.Behaviours
             InitializeThemes();
         }
 
+        private void Start()
+        {
+            if (Application.isPlaying)
+            {
+                GenerateDungeon();
+            }
+        }
+        
         /// <summary>
         /// Creates the <see cref="AliasProbability{TObject}"/> table from the current theme weights provided by <see cref="possibleThemes"/>.
         /// </summary>
@@ -625,7 +634,7 @@ namespace Code.Scripts.Dungeon.Behaviours
                 foreach (var candidateEntrance in hitModule.ConnectableEntrances)
                 {
                     var candidateDirection = candidateEntrance.EntrancePoint.forward;
-                    if (Vector3.Dot(candidateDirection, originDirection) < AlignmentThreshold) return candidateEntrance;
+                    if (Vector3.Dot(candidateDirection, originDirection) < PlacementThreshold) return candidateEntrance;
                 }
             }
             
@@ -744,7 +753,9 @@ namespace Code.Scripts.Dungeon.Behaviours
             if (transform.childCount <= 0)
             {
                 #if UNITY_EDITOR
+                
                 Debug.LogError($"[{name}] NavMesh generation failed due to missing child objects.", gameObject);
+                
                 #endif
                 
                 return;

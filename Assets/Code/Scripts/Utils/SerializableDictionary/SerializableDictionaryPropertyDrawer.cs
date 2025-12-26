@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 
+using Code.Scripts.Utils.SerializableDictionary.Attributes;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
@@ -15,7 +16,7 @@ namespace Code.Scripts.Utils.SerializableDictionary
     /// <remarks>
     /// If a <see cref="SerializableDictionaryAttribute"/> attribute was applied, the 
     /// </remarks>
-    [CustomPropertyDrawer(typeof(SerializableDictionary<,>), true)]
+    [CustomPropertyDrawer(typeof(SerializableDictionaryTemplate<,,>), true)]
     public class SerializableDictionaryPropertyDrawer : PropertyDrawer
     {
         /// <summary>
@@ -32,11 +33,11 @@ namespace Code.Scripts.Utils.SerializableDictionary
             
             if (keysProperty == null || valuesProperty == null || keysProperty.arraySize != valuesProperty.arraySize)
             {
-                Debug.LogError("[SerializableDictionary] Unable to create the property GUI due to an invalid SerializableDictionary structure.");
+                Debug.LogError("[SerializableDictionary] Unable to create Property GUI due to an invalid SerializableDictionary structure.");
                 return null;
             }
             
-            var headerAttribute = fieldInfo.GetCustomAttribute<SerializableDictionaryAttribute>();
+            var dictionaryAttribute = fieldInfo.GetCustomAttribute<SerializableDictionaryAttribute>();
             var rootElement = new MultiColumnListView
             {
                 itemsSource = Enumerable.Range(0, keysProperty.arraySize).ToList(),
@@ -48,8 +49,8 @@ namespace Code.Scripts.Utils.SerializableDictionary
                 virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight
             };
             
-            rootElement.columns.Add(CreateColumn(headerAttribute?.KeyLabel ?? "Keys", keysProperty));
-            rootElement.columns.Add(CreateColumn(headerAttribute?.ValueLabel ?? "Values", valuesProperty));
+            rootElement.columns.Add(CreateColumn(dictionaryAttribute?.KeyLabel ?? "Keys", keysProperty));
+            rootElement.columns.Add(CreateColumn(dictionaryAttribute?.ValueLabel ?? "Values", valuesProperty));
             
             rootElement.onAdd += _ =>
             {
@@ -59,9 +60,8 @@ namespace Code.Scripts.Utils.SerializableDictionary
                 valuesProperty.InsertArrayElementAtIndex(arraySize);
                 
                 serializedProperty.serializedObject.ApplyModifiedProperties();
-                
                 rootElement.itemsSource.Add(arraySize);
-                rootElement.Rebuild();
+                rootElement.RefreshItems();
             };
 
             rootElement.onRemove += _ =>
@@ -74,9 +74,8 @@ namespace Code.Scripts.Utils.SerializableDictionary
                 valuesProperty.DeleteArrayElementAtIndex(arraySize);
                 
                 serializedProperty.serializedObject.ApplyModifiedProperties();
-                
                 rootElement.itemsSource.Remove(arraySize);
-                rootElement.Rebuild();
+                rootElement.RefreshItems();
             };
             
             return rootElement;

@@ -1,11 +1,24 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using UnityEngine;
 
 namespace Code.Scripts.Utils.SerializableDictionary
 {
+    /// <summary>
+    /// Provides shared cache-related types for serializable dictionary implementations.
+    /// </summary>
+    public abstract class SerializableDictionary
+    {
+        /// <summary>
+        /// The base cache container used to serialize and deserialize dictionary values.
+        /// </summary>
+        /// <typeparam name="TObject">The runtime value type being cached.</typeparam>
+        public abstract class Cache<TObject> : SerializableDictionaryTemplate.Cache
+        {
+            public TObject CacheData;
+        }
+    }
+
     /// <summary>
     /// A serializable implementation of <see cref="Dictionary{TKey,TValue}"/> compatible with Unity's serialization system.
     /// </summary>
@@ -15,213 +28,102 @@ namespace Code.Scripts.Utils.SerializableDictionary
     /// Based on an implementation by <see href="https://github.com/JDSherbert/Unity-Serializable-Dictionary">JDSherbert on GitHub</see>.
     /// </remarks>
     [Serializable]
-    public class SerializableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDeserializationCallback, ISerializable, ISerializationCallbackReceiver
+    public class SerializableDictionary<TKey, TValue> : SerializableDictionaryTemplate<TKey, TValue, TValue>
     {
         /// <summary>
-        /// The serialized array of dictionary keys. 
+        /// Initializes an empty dictionary.
         /// </summary>
-        [SerializeField]
-        private TKey[] dictionaryKeys;
+        public SerializableDictionary() { }
         
         /// <summary>
-        /// The serialized array of dictionary values.
+        /// Initializes the dictionary using the contents of an existing dictionary.
         /// </summary>
-        [SerializeField]
-        private TValue[] dictionaryValues;
+        /// <param name="baseDictionary">The dictionary whose elements are copied into the new instance.</param>
+        public SerializableDictionary(IDictionary<TKey, TValue> baseDictionary) : base(baseDictionary) { }
         
         /// <summary>
-        /// The internal runtime dictionary reconstructed after deserialization.
+        /// Initializes the dictionary during deserialization.
         /// </summary>
-        private Dictionary<TKey, TValue> internalDictionary;
-
-        /// <summary>
-        /// Retrieves the collection of keys in the dictionary.
-        /// </summary>
-        public ICollection<TKey> Keys => ((IDictionary<TKey, TValue>)internalDictionary).Keys;
+        /// <param name="serializationInfo">The object that contains the serialized data.</param>
+        /// <param name="streamingContext">The source and destination context of the serialized stream.</param>
+        protected SerializableDictionary(SerializationInfo serializationInfo, StreamingContext streamingContext) : base(serializationInfo, streamingContext) { }
         
         /// <summary>
-        /// Retrieves the collection of values in the dictionary.
+        /// Stores a value into the value cache during serialization.
         /// </summary>
-        public ICollection<TValue> Values => ((IDictionary<TKey, TValue>)internalDictionary).Values;
-        
-        /// <summary>
-        /// Retrieves the number of <see cref="KeyValuePair{TKey,TValue}"/> contained in the dictionary.
-        /// </summary>
-        public int Count => ((IDictionary<TKey, TValue>)internalDictionary).Count;
-        
-        /// <summary>
-        /// Retrieves a value indicating whether the dictionary is read-only.
-        /// </summary>
-        public bool IsReadOnly => ((IDictionary<TKey, TValue>)internalDictionary).IsReadOnly;
-        
-        /// <summary>
-        /// Initializes an empty <see cref="SerializableDictionary{TKey,TValue}"/>.
-        /// </summary>
-        public SerializableDictionary()
+        /// <param name="itemIndex">The index associated with the key/value pair being serialized.</param>
+        /// <param name="itemValue">The value to store in the cache.</param>
+        /// <param name="valueCache">The cache array used to persist serialized values.</param>
+        protected override void SetValue(int itemIndex, TValue itemValue, TValue[] valueCache)
         {
-            internalDictionary = new Dictionary<TKey, TValue>();
+            valueCache[itemIndex] = itemValue;
         }
 
         /// <summary>
-        /// Initializes a <see cref="SerializableDictionary{TKey,TValue}"/> with the contents of an existing dictionary.
+        /// Retrieves a value from the value cache during deserialization.
         /// </summary>
-        /// <param name="dictionaryInstance"></param>
-        public SerializableDictionary(IDictionary<TKey, TValue> dictionaryInstance)
+        /// <param name="itemIndex">The index associated with the key/value pair being deserialized.</param>
+        /// <param name="valueCache">The cache array containing serialized values.</param>
+        /// <returns>The reconstructed value for the given index.</returns>
+        protected override TValue RetrieveValue(int itemIndex, TValue[] valueCache)
         {
-            internalDictionary = new Dictionary<TKey, TValue>(dictionaryInstance);
+            return valueCache[itemIndex];
         }
+    }
+
+    /// <summary>
+    /// A serializable implementation of <see cref="Dictionary{TKey,TValue}"/> compatible with Unity's serialization system.
+    /// </summary>
+    /// <typeparam name="TKey">The type of key to use in the dictionary.</typeparam>
+    /// <typeparam name="TValue">The type of value to use in the dictionary.</typeparam>
+    /// <typeparam name="TValueCache">The cache type used to serialize and deserialize dictionary values.</typeparam>
+    /// <remarks>
+    /// Based on an implementation by <see href="https://github.com/JDSherbert/Unity-Serializable-Dictionary">JDSherbert on GitHub</see>.
+    /// </remarks>
+    [Serializable]
+    public class SerializableDictionary<TKey, TValue, TValueCache> : SerializableDictionaryTemplate<TKey, TValue, TValueCache> where TValueCache : SerializableDictionary.Cache<TValue>, new()
+    {
+        /// <summary>
+        /// Initializes an empty dictionary.
+        /// </summary>
+        public SerializableDictionary() { }
         
         /// <summary>
-        /// Called before Unity serializes the object.
-        /// Currently unused, but required by <see cref="ISerializationCallbackReceiver"/>
+        /// Initializes the dictionary using the contents of an existing dictionary.
         /// </summary>
-        public void OnBeforeSerialize() { }
-
+        /// <param name="baseDictionary">The dictionary whose elements are copied into the new instance.</param>
+        public SerializableDictionary(IDictionary<TKey, TValue> baseDictionary) : base(baseDictionary) { }
+        
         /// <summary>
-        /// Called after Unity deserializes the object.
-        /// Rebuilds the internal dictionary from the <see cref="dictionaryKeys"/> and <see cref="dictionaryValues"/>.
+        /// Initializes the dictionary during deserialization.
         /// </summary>
-        public void OnAfterDeserialize()
+        /// <param name="serializationInfo">The object that contains the serialized data.</param>
+        /// <param name="streamingContext">The source and destination context of the serialized stream.</param>
+        protected SerializableDictionary(SerializationInfo serializationInfo, StreamingContext streamingContext) : base(serializationInfo, streamingContext) { }
+        
+        /// <summary>
+        /// Stores a value into the value cache during serialization.
+        /// </summary>
+        /// <param name="itemIndex">The index associated with the key/value pair being serialized.</param>
+        /// <param name="itemValue">The value to store in the cache.</param>
+        /// <param name="valueCache">The cache array used to persist serialized values.</param>
+        protected override void SetValue(int itemIndex, TValue itemValue, TValueCache[] valueCache)
         {
-            if (dictionaryKeys == null || dictionaryValues == null || dictionaryKeys.Length != dictionaryValues.Length) return;
-
-            internalDictionary ??= new Dictionary<TKey, TValue>();
-            internalDictionary.Clear();
-            
-            for (var itemIndex = 0; itemIndex < dictionaryKeys.Length; itemIndex++)
+            valueCache[itemIndex] = new TValueCache
             {
-                var dictionaryKey = dictionaryKeys[itemIndex];
-                var dictionaryValue = dictionaryValues[itemIndex];
-
-                if (dictionaryKey == null) continue;
-
-                internalDictionary[dictionaryKey] = dictionaryValue;
-            }
-        }
-        
-        /// <summary>
-        /// Populates serialization data with dictionary contents.
-        /// </summary>
-        /// <param name="serializationInfo">The <see cref="SerializationInfo"/> to populate with data.</param>
-        /// <param name="streamingContext">The destination context for the serialization.</param>
-        public void GetObjectData(SerializationInfo serializationInfo, StreamingContext streamingContext)
-        {
-            ((ISerializable)internalDictionary).GetObjectData(serializationInfo, streamingContext);
-        }
-        
-        /// <summary>
-        /// Called when deserialization of the object graph is complete.
-        /// </summary>
-        /// <param name="deserializationContext">The source of the deserialization event.</param>
-        public void OnDeserialization(object deserializationContext)
-        {
-            ((IDeserializationCallback)internalDictionary).OnDeserialization(deserializationContext);
-        }
-        
-        /// <summary>
-        /// Retrieves or sets the value associated with the specified key.
-        /// </summary>
-        /// <param name="targetKey">The key whose value is retrieved or set.</param>
-        public TValue this[TKey targetKey]
-        {
-            get => ((IDictionary<TKey, TValue>)internalDictionary)[targetKey];
-            set => ((IDictionary<TKey, TValue>)internalDictionary)[targetKey] = value;
-        }
-        
-        /// <summary>
-        /// Inserts the specified <see cref="KeyValuePair{TKey,TValue}"/> to the dictionary.
-        /// </summary>
-        /// <param name="targetItem">The <see cref="KeyValuePair{TKey,TValue}"/> to insert.</param>
-        public void Add(KeyValuePair<TKey, TValue> targetItem)
-        {
-            ((IDictionary<TKey, TValue>)internalDictionary).Add(targetItem);
-        }
-        
-        /// <summary>
-        /// Inserts the specified value into the dictionary under the specified key.
-        /// </summary>
-        /// <param name="targetKey">The key of the element to insert.</param>
-        /// <param name="targetValue">The value of the element to insert.</param>
-        public void Add(TKey targetKey, TValue targetValue)
-        {
-            ((IDictionary<TKey, TValue>)internalDictionary).Add(targetKey, targetValue);
+                CacheData = itemValue
+            };
         }
 
         /// <summary>
-        /// Removes all keys and values from the dictionary.
+        /// Retrieves a value from the value cache during deserialization.
         /// </summary>
-        public void Clear()
+        /// <param name="itemIndex">The index associated with the key/value pair being deserialized.</param>
+        /// <param name="valueCache">The cache array containing serialized values.</param>
+        /// <returns>The reconstructed value for the given index.</returns>
+        protected override TValue RetrieveValue(int itemIndex, TValueCache[] valueCache)
         {
-            ((IDictionary<TKey, TValue>)internalDictionary).Clear();
+            return valueCache[itemIndex].CacheData;
         }
-
-        /// <summary>
-        /// Determines whether the dictionary contains a specific <see cref="KeyValuePair{TKey,TValue}"/>.
-        /// </summary>
-        /// <param name="targetItem">The <see cref="KeyValuePair{TKey,TValue}"/> to locate.</param>
-        /// <returns><c>true</c> if the pair exists; otherwise, <c>false</c>.</returns>
-        public bool Contains(KeyValuePair<TKey, TValue> targetItem)
-        {
-            return ((IDictionary<TKey, TValue>)internalDictionary).Contains(targetItem);
-        }
-        
-        /// <summary>
-        /// Determines whether the dictionary contains a specific key.
-        /// </summary>
-        /// <param name="targetKey">The key to locate.</param>
-        /// <returns><c>true</c> if the key exists; otherwise, <c>false</c>.</returns>
-        public bool ContainsKey(TKey targetKey)
-        {
-            return ((IDictionary<TKey, TValue>)internalDictionary).ContainsKey(targetKey);
-        }
-
-        /// <summary>
-        /// Copies the elements of the dictionary to an array, starting at a particular index.
-        /// </summary>
-        /// <param name="targetArray">The destination array.</param>
-        /// <param name="targetIndex">The zero-based index in the array at which copying begins.</param>
-        public void CopyTo(KeyValuePair<TKey, TValue>[] targetArray, int targetIndex)
-        {
-            ((IDictionary<TKey, TValue>)internalDictionary).CopyTo(targetArray, targetIndex);
-        }
-
-        /// <summary>
-        /// Removes the element with the specified <see cref="KeyValuePair{TKey,TValue}"/> from the dictionary.
-        /// </summary>
-        /// <param name="targetItem">The <see cref="KeyValuePair{TKey,TValue}"/> of the element to remove.</param>
-        /// <returns><c>true</c> if the element was removed successfully; otherwise, <c>false</c>.</returns>
-        public bool Remove(KeyValuePair<TKey, TValue> targetItem)
-        {
-            return ((IDictionary<TKey, TValue>)internalDictionary).Remove(targetItem);
-        }
-        
-        /// <summary>
-        /// Removes the element with the specified key from the dictionary.
-        /// </summary>
-        /// <param name="targetKey">The key of the element to remove.</param>
-        /// <returns><c>true</c> if the element was removed successfully; otherwise, <c>false</c>.</returns>
-        public bool Remove(TKey targetKey)
-        {
-            return ((IDictionary<TKey, TValue>)internalDictionary).Remove(targetKey);
-        }
-        
-        /// <summary>
-        /// Retrieves the value associated with the specified key.
-        /// </summary>
-        /// <param name="targetKey">The key of the value to retrieve.</param>
-        /// <param name="targetValue">The value associated with the specified key, if found.</param>
-        /// <returns><c>true</c> if the dictionary contains an element with the specified key; otherwise <c>false</c>.</returns>
-        public bool TryGetValue(TKey targetKey, out TValue targetValue)
-        {
-            return ((IDictionary<TKey, TValue>)internalDictionary).TryGetValue(targetKey, out targetValue);
-        }
-        
-        /// <summary>
-        /// Returns an enumerator that iterates through the collection of key-frequency pairs.
-        /// </summary>
-        /// <returns>An enumerator for the collection.</returns>
-        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => internalDictionary.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
