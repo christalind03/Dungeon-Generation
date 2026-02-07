@@ -11,7 +11,7 @@ namespace Code.Scripts.Dungeon.Algorithms
     /// <remarks>
     /// This class precomputes alias and probability tables from the provided weights, enabling O(1) random sampling regardless of the number of items.
     /// </remarks>
-    public class AliasProbability<TObject>
+    internal class AliasProbability<TObject>
     {
         /// <summary>
         /// Stores the alias indices used to resolve outcomes when probabilities exceed uniform distribution thresholds.

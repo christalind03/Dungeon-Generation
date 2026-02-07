@@ -8,7 +8,7 @@ using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Code.Scripts.Utils.SerializableDictionary
+namespace Code.Scripts.Utils.SerializableDictionary.Editor
 {
     /// <summary>
     /// A custom property drawer for <see cref="SerializableDictionary{TKey,TValue}"/>.
@@ -17,7 +17,7 @@ namespace Code.Scripts.Utils.SerializableDictionary
     /// If a <see cref="SerializableDictionaryAttribute"/> attribute was applied, the 
     /// </remarks>
     [CustomPropertyDrawer(typeof(SerializableDictionaryTemplate<,,>), true)]
-    public class SerializableDictionaryPropertyDrawer : PropertyDrawer
+    internal class SerializableDictionaryPropertyDrawer : PropertyDrawer
     {
         /// <summary>
         /// Creates the custom property inspector user interface for <see cref="SerializableDictionary{TKey,TValue}"/>.

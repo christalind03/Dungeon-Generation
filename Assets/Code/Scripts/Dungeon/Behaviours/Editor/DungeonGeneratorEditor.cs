@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 
+using Code.Scripts.Dungeon.Behaviours.Runtime;
 using System.Reflection;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -13,7 +14,7 @@ namespace Code.Scripts.Dungeon.Behaviours.Editor
     /// Provides grouped property fields and editor-only tools for generation control.
     /// </summary>
     [CustomEditor(typeof(DungeonGenerator))]
-    public class DungeonGeneratorEditor : UnityEditor.Editor
+    internal class DungeonGeneratorEditor : UnityEditor.Editor
     {
         /// <summary>
         /// The currently inspected <see cref="DungeonGenerator"/> instance.

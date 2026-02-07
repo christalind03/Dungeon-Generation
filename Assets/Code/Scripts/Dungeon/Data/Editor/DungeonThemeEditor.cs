@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 
+using Code.Scripts.Dungeon.Data.Runtime;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
@@ -14,7 +15,7 @@ namespace Code.Scripts.Dungeon.Data.Editor
     /// Provides a UI Toolkit based editor to manage the theme name, module categories, and module data.
     /// </summary>
     [CustomEditor(typeof(DungeonTheme))]
-    public class DungeonThemeEditor : UnityEditor.Editor
+    internal class DungeonThemeEditor : UnityEditor.Editor
     {
         /// <summary>
         /// Serialized property for the dungeon theme's display name.

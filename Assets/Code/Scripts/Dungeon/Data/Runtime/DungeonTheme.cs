@@ -3,7 +3,7 @@ using Code.Scripts.Utils;
 using System.Linq;
 using UnityEngine;
 
-namespace Code.Scripts.Dungeon.Data
+namespace Code.Scripts.Dungeon.Data.Runtime
 {
     /// <summary>
     /// Defines the dataset used for procedural dungeon generation.

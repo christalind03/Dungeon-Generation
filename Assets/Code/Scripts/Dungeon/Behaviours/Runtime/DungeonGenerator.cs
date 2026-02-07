@@ -1,6 +1,6 @@
 using Code.Scripts.Attributes.Required;
 using Code.Scripts.Dungeon.Algorithms;
-using Code.Scripts.Dungeon.Data;
+using Code.Scripts.Dungeon.Data.Runtime;
 using Code.Scripts.Utils;
 using Code.Scripts.Utils.SerializableDictionary;
 using Code.Scripts.Utils.SerializableDictionary.Attributes;
@@ -11,7 +11,7 @@ using Unity.AI.Navigation;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace Code.Scripts.Dungeon.Behaviours
+namespace Code.Scripts.Dungeon.Behaviours.Runtime
 {
     /// <summary>
     /// Procedurally constructs a dungeon layout at runtime using a selected <see cref="DungeonTheme"/>.

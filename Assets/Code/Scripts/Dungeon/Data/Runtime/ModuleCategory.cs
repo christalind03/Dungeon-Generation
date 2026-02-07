@@ -2,7 +2,7 @@ using Code.Scripts.Attributes.Required;
 using System;
 using UnityEngine;
 
-namespace Code.Scripts.Dungeon.Data
+namespace Code.Scripts.Dungeon.Data.Runtime
 {
     /// <summary>
     /// The data related to a category of dungeon modules.

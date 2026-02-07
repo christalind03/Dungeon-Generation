@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 
 using Code.Scripts.Attributes.Required;
+using Code.Scripts.Dungeon.Data.Runtime;
 using System;
 using System.Reflection;
 using UnityEditor;
@@ -11,7 +12,7 @@ namespace Code.Scripts.Dungeon.Data.Editor
     /// Provides automated validation for <see cref="DungeonTheme"/> assets when entering Play Mode in the Unity Editor.
     /// </summary>
     [InitializeOnLoad]
-    public static class DungeonThemeValidator
+    internal static class DungeonThemeValidator
     {
         /// <summary>
         /// Registers the validation check to run when Play Mode is entered.

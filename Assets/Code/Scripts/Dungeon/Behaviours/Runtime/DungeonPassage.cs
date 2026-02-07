@@ -2,10 +2,10 @@ using Code.Scripts.Attributes.Required;
 using System;
 using UnityEngine;
 
-namespace Code.Scripts.Dungeon.Behaviours
+namespace Code.Scripts.Dungeon.Behaviours.Runtime
 {
     /// <summary>
-    /// Represents a single entrance/exit point within a <see cref="Behaviours.DungeonModule"/>.
+    /// Represents a single entrance/exit point within a <see cref="DungeonModule"/>.
     /// </summary>
     [Serializable]
     public class DungeonPassage

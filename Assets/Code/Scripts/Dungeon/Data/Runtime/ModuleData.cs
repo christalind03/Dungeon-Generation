@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Code.Scripts.Dungeon.Data
+namespace Code.Scripts.Dungeon.Data.Runtime
 {
     /// <summary>
     /// Represents a data entry for a single module configuration within a <see cref="DungeonTheme"/>.

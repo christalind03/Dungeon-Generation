@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Code.Scripts.Dungeon.Behaviours
+namespace Code.Scripts.Dungeon.Behaviours.Runtime
 {
     /// <summary>
     /// Represents a modular section of a dungeon.

@@ -2,7 +2,7 @@ using Code.Scripts.Attributes.Required;
 using System;
 using UnityEngine;
 
-namespace Code.Scripts.Dungeon.Data
+namespace Code.Scripts.Dungeon.Data.Runtime
 {
     /// <summary>
     /// Represents a single dungeon module that can be used during dungeon generation.

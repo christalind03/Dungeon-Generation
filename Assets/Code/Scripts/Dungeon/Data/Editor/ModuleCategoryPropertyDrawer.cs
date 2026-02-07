@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 
+using Code.Scripts.Dungeon.Data.Runtime;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
@@ -10,7 +11,7 @@ namespace Code.Scripts.Dungeon.Data.Editor
     /// Provides a custom property drawer for the <see cref="ModuleCategory"/> struct.
     /// </summary>
     [CustomPropertyDrawer(typeof(ModuleCategory))]
-    public class ModuleCategoryPropertyDrawer : PropertyDrawer
+    internal class ModuleCategoryPropertyDrawer : PropertyDrawer
     {
         private const int SubregionMargin = 15;
         
