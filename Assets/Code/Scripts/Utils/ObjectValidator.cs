@@ -15,7 +15,7 @@ namespace Code.Scripts.Utils
     public static class ObjectValidator
     {
         /// <summary>
-        /// Asserts a set of validation checks for a specified Unity object  and logs detailed error messages for any failed assertions.
+        /// Asserts a set of validation checks for a specified Unity object and logs detailed error messages for any failed assertions.
         /// If any condition fails while the editor is in <c>Play</c> mode, <c>Play</c> mode is terminated to prevent unintended runtime behavior.
         /// </summary>
         /// <param name="unityObject">

@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 
 using Code.Scripts.Dungeon.Behaviours.Runtime;
+using System;
 using System.Reflection;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -135,9 +136,9 @@ namespace Code.Scripts.Dungeon.Behaviours.Editor
                 }
             };
             
-            var generateDungeonButton = InvokeButton("Generate Dungeon", "GenerateDungeon");
-            var generateNavMeshButton = InvokeButton("Generate NavMesh", "GenerateNavMesh");
-            var destroyButton = InvokeButton("Reset Environment", "ResetEnvironment");
+            var generateDungeonButton = InvokeButton("Generate Dungeon", activeObject.GenerateDungeon);
+            var generateNavMeshButton = InvokeButton("Generate NavMesh", activeObject.GenerateNavMesh);
+            var destroyButton = InvokeButton("Reset Environment", activeObject.ResetEnvironment);
             
             generateContainer.Add(generateDungeonButton);
             generateContainer.Add(generateNavMeshButton);
@@ -153,9 +154,9 @@ namespace Code.Scripts.Dungeon.Behaviours.Editor
         /// Creates a button that invokes a method on the target <see cref="DungeonGenerator"/> via reflection.
         /// </summary>
         /// <param name="buttonLabel">The text displayed on the button.</param>
-        /// <param name="targetMethod">The method name to invoke on the target.</param>
+        /// <param name="targetAction">The method to invoke on the target.</param>
         /// <returns>A <see cref="Button"/> element configured to call the specified method.</returns>
-        private Button InvokeButton(string buttonLabel, string targetMethod)
+        private Button InvokeButton(string buttonLabel, Action targetAction)
         {
             var buttonElement = new Button
             {
@@ -166,17 +167,12 @@ namespace Code.Scripts.Dungeon.Behaviours.Editor
                 text = buttonLabel
             };
             
-            var methodInfo = activeObject.GetType().GetMethod(
-                targetMethod, 
-                BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static
-            );
-
-            buttonElement.clicked += () =>
+            buttonElement.RegisterCallback<ClickEvent>(_ =>
             {
                 buttonElement.SetEnabled(false);
-                methodInfo?.Invoke(activeObject, null);
+                targetAction.Invoke();
                 buttonElement.SetEnabled(true);
-            };
+            });
             
             return buttonElement;
         }

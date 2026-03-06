@@ -16,7 +16,7 @@ namespace Code.Scripts.Utils.SerializableDictionary.Editor
     /// <remarks>
     /// If a <see cref="SerializableDictionaryAttribute"/> attribute was applied, the 
     /// </remarks>
-    [CustomPropertyDrawer(typeof(SerializableDictionaryTemplate<,,>), true)]
+    [CustomPropertyDrawer(typeof(SerializableDictionaryBase<,,>), true)]
     internal class SerializableDictionaryPropertyDrawer : PropertyDrawer
     {
         /// <summary>

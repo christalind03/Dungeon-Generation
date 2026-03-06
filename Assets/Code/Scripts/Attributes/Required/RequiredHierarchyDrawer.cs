@@ -36,7 +36,7 @@ namespace Code.Scripts.Attributes.Required
         /// <param name="selectionRect">The rectangle area of the hierarchy row.</param>
         private static void OnHierarchyWindowItemOnGUI(int instanceID, Rect selectionRect)
         {
-            if (EditorUtility.InstanceIDToObject(instanceID) is not GameObject gameObject) return;
+            if (EditorUtility.EntityIdToObject(instanceID) is not GameObject gameObject) return;
 
             foreach (var objectComponent in gameObject.GetComponents<Component>())
             {

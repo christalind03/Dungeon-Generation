@@ -13,7 +13,7 @@ namespace Code.Scripts.Utils.SerializableDictionary
         /// The base cache container used to serialize and deserialize dictionary values.
         /// </summary>
         /// <typeparam name="TObject">The runtime value type being cached.</typeparam>
-        public abstract class Cache<TObject> : SerializableDictionaryTemplate.Cache
+        public abstract class Cache<TObject> : SerializableDictionaryBase.Cache
         {
             public TObject CacheData;
         }
@@ -28,7 +28,7 @@ namespace Code.Scripts.Utils.SerializableDictionary
     /// Based on an implementation by <see href="https://github.com/JDSherbert/Unity-Serializable-Dictionary">JDSherbert on GitHub</see>.
     /// </remarks>
     [Serializable]
-    public class SerializableDictionary<TKey, TValue> : SerializableDictionaryTemplate<TKey, TValue, TValue>
+    public class SerializableDictionary<TKey, TValue> : SerializableDictionaryBase<TKey, TValue, TValue>
     {
         /// <summary>
         /// Initializes an empty dictionary.
@@ -81,7 +81,7 @@ namespace Code.Scripts.Utils.SerializableDictionary
     /// Based on an implementation by <see href="https://github.com/JDSherbert/Unity-Serializable-Dictionary">JDSherbert on GitHub</see>.
     /// </remarks>
     [Serializable]
-    public class SerializableDictionary<TKey, TValue, TValueCache> : SerializableDictionaryTemplate<TKey, TValue, TValueCache> where TValueCache : SerializableDictionary.Cache<TValue>, new()
+    public class SerializableDictionary<TKey, TValue, TValueCache> : SerializableDictionaryBase<TKey, TValue, TValueCache> where TValueCache : SerializableDictionary.Cache<TValue>, new()
     {
         /// <summary>
         /// Initializes an empty dictionary.

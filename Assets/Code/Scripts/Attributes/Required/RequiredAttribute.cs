@@ -14,6 +14,9 @@ namespace Code.Scripts.Attributes.Required
         /// </summary>
         public readonly bool DisplayLabel;
 
+        /// <summary>
+        /// Determines whether the field's layout should align consistently with surrounding fields in the inspector.
+        /// </summary>
         public readonly bool NormalizeLayout;
         
         /// <summary>

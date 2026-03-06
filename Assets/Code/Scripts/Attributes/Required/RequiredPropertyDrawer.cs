@@ -65,7 +65,7 @@ namespace Code.Scripts.Attributes.Required
                 // Force a repaint of the hierarchy
                 EditorApplication.RepaintProjectWindow();
                 
-                propertyIcon.style.visibility = IsAssigned(serializedProperty) ? Visibility.Hidden : Visibility.Visible; 
+                propertyIcon.style.display = IsAssigned(serializedProperty) ? DisplayStyle.None : DisplayStyle.Flex; 
             });
 
             if (attributeInfo.NormalizeLayout)

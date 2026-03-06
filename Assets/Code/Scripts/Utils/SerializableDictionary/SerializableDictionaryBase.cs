@@ -9,7 +9,7 @@ namespace Code.Scripts.Utils.SerializableDictionary
     /// <summary>
     /// The base template for serializable dictionary implementations.
     /// </summary>
-    public abstract class SerializableDictionaryTemplate
+    public abstract class SerializableDictionaryBase
     {
         /// <summary>
         /// The internal dictionary implementation used for storage and serialization.
@@ -53,7 +53,7 @@ namespace Code.Scripts.Utils.SerializableDictionary
     /// Based on an implementation by <see href="https://github.com/JDSherbert/Unity-Serializable-Dictionary">JDSherbert on GitHub</see>.
     /// </remarks>
     [Serializable]
-    public abstract class SerializableDictionaryTemplate<TKey, TValue, TValueCache> : SerializableDictionaryTemplate, IDictionary, IDictionary<TKey, TValue>, IDeserializationCallback, ISerializable, ISerializationCallbackReceiver
+    public abstract class SerializableDictionaryBase<TKey, TValue, TValueCache> : SerializableDictionaryBase, IDictionary, IDictionary<TKey, TValue>, IDeserializationCallback, ISerializable, ISerializationCallbackReceiver
     {
         /// <summary>
         /// The serialized array of dictionary keys. 
@@ -119,18 +119,18 @@ namespace Code.Scripts.Utils.SerializableDictionary
         public object SyncRoot => ((IDictionary)internalDictionary).SyncRoot;
         
         /// <summary>
-        /// Initializes an empty <see cref="SerializableDictionaryTemplate{TKey,TValue,TValueCache}"/>.
+        /// Initializes an empty <see cref="SerializableDictionaryBase{TKey,TValue,TValueCache}"/>.
         /// </summary>
-        protected SerializableDictionaryTemplate()
+        protected SerializableDictionaryBase()
         {
             internalDictionary = new Dictionary<TKey, TValue>();
         }
 
         /// <summary>
-        /// Initializes a <see cref="SerializableDictionaryTemplate{TKey,TValue,TValueCache}"/> with the contents of an existing dictionary.
+        /// Initializes a <see cref="SerializableDictionaryBase{TKey,TValue,TValueCache}"/> with the contents of an existing dictionary.
         /// </summary>
         /// <param name="dictionaryInstance"></param>
-        protected SerializableDictionaryTemplate(IDictionary<TKey, TValue> dictionaryInstance)
+        protected SerializableDictionaryBase(IDictionary<TKey, TValue> dictionaryInstance)
         {
             internalDictionary = new Dictionary<TKey, TValue>(dictionaryInstance);
         }
@@ -140,7 +140,7 @@ namespace Code.Scripts.Utils.SerializableDictionary
         /// </summary>
         /// <param name="serializationInfo">The object that contains the serialized data.</param>
         /// <param name="streamingContext">The source and destination context of the serialized stream.</param>
-        protected SerializableDictionaryTemplate(SerializationInfo serializationInfo, StreamingContext streamingContext)
+        protected SerializableDictionaryBase(SerializationInfo serializationInfo, StreamingContext streamingContext)
         {
             internalDictionary = new Dictionary<TKey, TValue>(serializationInfo, streamingContext);
         }

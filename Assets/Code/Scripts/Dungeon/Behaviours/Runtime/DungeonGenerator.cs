@@ -123,14 +123,6 @@ namespace Code.Scripts.Dungeon.Behaviours.Runtime
         {
             InitializeThemes();
         }
-
-        private void Start()
-        {
-            if (Application.isPlaying)
-            {
-                GenerateDungeon();
-            }
-        }
         
         /// <summary>
         /// Creates the <see cref="AliasProbability{TObject}"/> table from the current theme weights provided by <see cref="possibleThemes"/>.
