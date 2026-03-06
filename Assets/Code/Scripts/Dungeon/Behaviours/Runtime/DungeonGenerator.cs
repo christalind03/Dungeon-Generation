@@ -25,7 +25,7 @@ namespace Code.Scripts.Dungeon.Behaviours.Runtime
         private const float RequiredChance = 0.5f;
 
         [SerializeField]
-        [Tooltip("")]
+        [Tooltip("The seed used to initialize the random number generation, ensuring reproducible generation results.")]
         private int generationSeed;
         
         [SerializableDictionary("Theme", "Occurrence Rate")]
