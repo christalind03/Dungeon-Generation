@@ -23,6 +23,11 @@ namespace Code.Scripts.Dungeon.Behaviours.Editor
         private DungeonGenerator activeObject;
 
         /// <summary>
+        /// Serialized reference to the generation seed.
+        /// </summary>
+        private SerializedProperty generationSeedProperty;
+        
+        /// <summary>
         /// Serialized reference to the list of possible dungeon themes.
         /// </summary>
         private SerializedProperty possibleThemesProperty;
@@ -54,6 +59,7 @@ namespace Code.Scripts.Dungeon.Behaviours.Editor
         {
             activeObject = target as DungeonGenerator;
             
+            generationSeedProperty = serializedObject.FindProperty("generationSeed");
             possibleThemesProperty = serializedObject.FindProperty("possibleThemes");
             placementLayersProperty = serializedObject.FindProperty("placementLayers");
             enableLoopsProperty = serializedObject.FindProperty("enableLoops");
@@ -69,8 +75,10 @@ namespace Code.Scripts.Dungeon.Behaviours.Editor
         {
             var rootElement = new VisualElement();
             
+            rootElement.Add(InspectorSpace(5));
             rootElement.Add(HeaderLabel("Generation Parameters"));
             rootElement.Add(InspectorSpace(3));
+            rootElement.Add(new PropertyField(generationSeedProperty) { label = "Seed" });
             rootElement.Add(new PropertyField(possibleThemesProperty));
             rootElement.Add(InspectorSpace(5));
             rootElement.Add(new PropertyField(placementLayersProperty));

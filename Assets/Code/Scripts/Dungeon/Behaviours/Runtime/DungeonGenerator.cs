@@ -23,6 +23,10 @@ namespace Code.Scripts.Dungeon.Behaviours.Runtime
         private const int PlacementLimit = 25;
         private const float PlacementThreshold = -1f;
         private const float RequiredChance = 0.5f;
+
+        [SerializeField]
+        [Tooltip("")]
+        private int generationSeed;
         
         [SerializableDictionary("Theme", "Occurrence Rate")]
         [SerializeField]
@@ -257,6 +261,11 @@ namespace Code.Scripts.Dungeon.Behaviours.Runtime
         /// </remarks>
         private void InitializeGeneration()
         {
+            if (generationSeed != 0)
+            {
+                UnityEngine.Random.InitState(generationSeed);
+            }
+            
             if (themeProbabilities == null)
             {
                 InitializeThemes();
