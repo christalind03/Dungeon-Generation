@@ -1,7 +1,7 @@
 # Dungeon Generation
 A modular dungeon generation system built using C# and Unity that assembles pre-built module prefabs and connects them procedurally. Inspired by titles such as *Lethal Company* and *R.E.P.O.*, this tool focuses on generation using constraints, weighted randomness, and backtracking to ensure valid dungeon layouts.
 
-https://github.com/user-attachments/assets/5ef808e9-4a24-45ac-8174-13953274371c
+[![Demo Video](https://img.youtube.com/vi/wXb4MGtWiRc/maxresdefault.jpg)](https://www.youtube.com/watch?v=wXb4MGtWiRc)
 
 ## System Overview
 This project was design to study the dungeon generation systems in titles such as *Lethal Company* and *R.E.P.O.*, which feature consistent, hand-crafted rooms reused across playthroughs.
